@@ -1,0 +1,34 @@
+EDITH - Source-Available Notice
+
+Copyright (c) 2026 OBSYRA. All rights reserved.
+
+This source code is published so that people can see how EDITH works.
+No licence is granted except as stated below.
+
+You MAY:
+- View and read the source code.
+- Use the official EDITH app, through its official web address or app
+  store listing, for your own personal or internal use.
+
+You MAY NOT, without prior written permission from the copyright holder:
+- Copy, modify, merge, publish, distribute, sublicense or sell this code
+  or any part of it.
+- Create derivative works, competing products or rebranded versions.
+- Remove or alter any copyright or licence notice.
+- Use the names OBSYRA or EDITH, or the EDITH logo and icons.
+
+Nothing in this notice limits the rights that GitHub's Terms of Service
+give to other users of GitHub, such as viewing and forking this
+repository on GitHub.
+
+Third-party components (pdf-lib, PDF.js and JSZip) are loaded from their
+own sources and remain under their own licences. This notice does not
+change their terms.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES
+OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+To ask for permission, open an issue on this repository.

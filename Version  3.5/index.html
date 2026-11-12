@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#0B0B0F"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>EDITH</title>
+<style>
+:root{--bg:#0B0B0F;--bg2:#15151C;--card:#1C1C25;--ac:#9B5CFF;--ac2:#7040CC;--tx:#fff;--tx2:#A5A5B2;--bd:#30303B;--ok:#35C98A;--er:#FF5555;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B0B0F}}
+:root[data-theme="dark"]{--bg:#0B0B0F}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{display:flex;min-height:100vh}
+nav{background:var(--bg2);border-right:1px solid var(--bd);width:230px;padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 8px 16px}
+.logo b{letter-spacing:.04em;font-size:18px}.logo small{display:block;color:var(--tx2);font-size:10px;letter-spacing:.05em}
+nav button{background:none;border:0;text-align:left;padding:10px 12px;border-radius:12px;color:var(--tx2)}
+nav button.on{background:var(--card);color:var(--tx);box-shadow:inset 3px 0 var(--ac)}
+nav button:hover{color:var(--tx)}
+main{flex:1;min-width:0;padding:28px;max-width:1000px}
+h1{margin:0 0 4px;font-size:26px}h2{font-size:17px;margin:28px 0 12px}
+.sub{color:var(--tx2);margin:0 0 18px}
+.search{width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--bd);background:var(--bg2);color:var(--tx);font:inherit}
+.search:focus,button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;text-align:left;transition:border-color .15s,transform .15s}
+button.card:hover{border-color:var(--ac);transform:translateY(-2px)}
+.card h3{margin:0 0 4px;font-size:15px}.card p{margin:0;color:var(--tx2);font-size:13px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);color:var(--tx2);margin-top:8px}
+.tag.ok{color:var(--ok);border-color:var(--ok)}
+.brand{background:linear-gradient(135deg,#1C1C25,#15151C);border:1px solid var(--bd);border-radius:20px;padding:22px;margin-bottom:20px}
+.brand small{color:var(--tx2);letter-spacing:.1em}.brand .n{font-size:34px;letter-spacing:.06em;font-weight:700;margin:2px 0}.brand em{color:var(--ac);font-style:normal}
+.btn{background:var(--ac);border:0;border-radius:12px;padding:10px 16px;font-weight:600}
+.btn.g{background:var(--card);border:1px solid var(--bd)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.drop{border:2px dashed var(--bd);border-radius:18px;padding:34px 16px;text-align:center;color:var(--tx2);background:var(--bg2)}
+.drop.over{border-color:var(--ac);color:var(--tx)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd);font-size:14px;flex-wrap:wrap}
+.err{color:var(--er);font-size:14px;margin-top:8px}.empty{color:var(--tx2);text-align:center;padding:30px;border:1px dashed var(--bd);border-radius:16px}
+.bar{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden;margin:12px 0}.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}.f{display:grid;gap:10px;margin:14px 0}.f label{font-size:13px;color:var(--tx2);display:grid;gap:4px}.f input,.f select{padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg2);color:var(--tx);font:inherit}.ib{background:none;border:1px solid var(--bd);border-radius:8px;padding:2px 9px}.ok{color:var(--ok)}.btn,.ib,.f input,.f select,.search{min-height:44px}.ib{min-width:44px}button{touch-action:manipulation}.card h3{overflow-wrap:anywhere}.back{background:none;border:0;color:var(--ac);padding:0 0 10px}
+@media(max-width:760px){
+.app{flex-direction:column}
+nav{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;flex-direction:row;overflow-x:auto;border-right:0;border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5;gap:2px}
+nav .logo{display:none}nav button{white-space:nowrap;font-size:13px;padding:9px 11px}
+main{padding:18px 16px 90px}}
+
+:root{--hf:"sans-serif-condensed","Roboto Condensed","Arial Narrow","Segoe UI",system-ui,sans-serif}
+body{background-image:radial-gradient(rgba(155,92,255,.10) 1px,transparent 1.5px);background-size:22px 22px}
+h1,h2,.logo b,.brand .n,.card h3{font-family:var(--hf);text-transform:uppercase}
+h1{font-size:30px;font-weight:800;letter-spacing:.08em}
+h2{font-size:14px;font-weight:700;letter-spacing:.2em;color:var(--tx2);display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:22px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--bd),transparent)}
+h2.ok{color:var(--ok)}
+.logo b{letter-spacing:.14em;font-size:19px;font-weight:800}
+.brand{position:relative;overflow:hidden;padding:30px 22px;background:linear-gradient(135deg,rgba(155,92,255,.18),transparent 55%),repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 12px),#15151C}
+.brand::after{content:"";position:absolute;right:-34px;top:-34px;width:130px;height:130px;border:2px solid rgba(155,92,255,.4);border-radius:20px;transform:rotate(45deg)}
+.brand::before{content:"";position:absolute;right:-12px;top:-12px;width:80px;height:80px;border:2px solid rgba(155,92,255,.2);border-radius:14px;transform:rotate(45deg)}
+.brand small{text-transform:uppercase;font-size:11px;letter-spacing:.32em}
+.brand .n{font-size:46px;font-weight:800;letter-spacing:.14em;line-height:1.1;background:linear-gradient(90deg,#fff,#C9A8FF 55%,var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand em{display:block;margin-top:8px;font-size:15px;letter-spacing:.05em}
+.card{position:relative;overflow:hidden;background-image:linear-gradient(160deg,rgba(155,92,255,.08),transparent 45%)}
+.card::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(var(--ac),transparent)}
+.card h3{font-size:15px;letter-spacing:.07em}
+.drop{background-image:repeating-linear-gradient(45deg,rgba(155,92,255,.06) 0 1px,transparent 1px 10px)}
+</style></head><body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
+<script>
+const VERSION="0.3.5";const MAXMB=100;
+const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
+const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=b=>b<1024?b+" B":b<1048576?(b/1024).toFixed(1)+" KB":(b/1048576).toFixed(1)+" MB";
+const base=n=>n.replace(/\.[^.]+$/,"");
+const EXT={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+const cv=(w,h)=>{const c=document.createElement("canvas");c.width=w;c.height=h;return c};
+const blobOf=(c,t,q)=>new Promise((r,j)=>c.toBlob(b=>b?r(b):j(new Error("This browser can’t encode "+t+".")),t,q));
+const bytes=async f=>new Uint8Array(await f.arrayBuffer());
+const num=(v,d)=>v===""||v==null?d:Number(v);
+function need(){if(!window.PDFLib)throw new Error("PDF engine failed to load. Check your connection and reload.")}
+async function pdfOf(f){need();try{return await PDFLib.PDFDocument.load(await bytes(f))}catch(e){throw new Error("“"+f.name+"” is damaged or password-protected.")}}
+const pdfBlob=async d=>new Blob([await d.save()],{type:"application/pdf"});
+function pages(spec,n,all){spec=(spec||"").trim();if(!spec){if(all)return[...Array(n).keys()];throw new Error("Enter page numbers, e.g. 1-3,5.")}
+const out=[];for(const p of spec.split(",")){const m=p.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);if(!m)throw new Error("Can’t read “"+p.trim()+"”. Use numbers like 1-3,5.");const a=+m[1],b=m[2]?+m[2]:a;if(a<1||b>n||a>b)throw new Error("Pages must be between 1 and "+n+".");for(let i=a;i<=b;i++)out.push(i-1)}return out}
+async function raster(f,o){const b=await createImageBitmap(f);let sx=0,sy=0,sw=b.width,sh=b.height;
+if(o.crop){const[l,t,r,bt]=o.crop;if([l,t,r,bt].some(v=>isNaN(v)||v<0)||l+r>=100||t+bt>=100)throw new Error("Crop percentages must leave some image.");sx=sw*l/100;sy=sh*t/100;sw=b.width*(1-(l+r)/100);sh=b.height*(1-(t+bt)/100)}
+let w=o.w||sw,h=o.h||sh;if(o.w&&!o.h)h=sh*o.w/sw;if(o.h&&!o.w)w=sw*o.h/sh;w=Math.round(w);h=Math.round(h);
+if(!(w>0&&h>0)||w>8000||h>8000)throw new Error("Size must be between 1 and 8000 pixels.");
+const rot=(o.rot||0)%360,sw2=rot===90||rot===270;const c=cv(sw2?h:w,sw2?w:h),x=c.getContext("2d");
+if(o.type==="image/jpeg"){x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height)}
+x.translate(c.width/2,c.height/2);x.rotate(rot*Math.PI/180);x.drawImage(b,sx,sy,sw,sh,-w/2,-h/2,w,h);b.close&&b.close();
+return blobOf(c,o.type,(o.q||90)/100)}
+const keepType=f=>["image/jpeg","image/png","image/webp"].includes(f.type)?f.type:"image/png";
+const out=(blob,name)=>({blob,name});
+const imgEach=(suffix,mk)=>async(fs,o,x)=>{const r=[];for(let i=0;i<fs.length;i++){if(x.stop())break;const p=mk(fs[i],o);r.push(out(await raster(fs[i],p),base(fs[i].name)+"-"+suffix+"."+EXT[p.type]));x.step(i+1,fs.length)}return r};
+const F=(k,l,t,v,o)=>({k,l,t,v,o});
+const RGB={Black:[0,0,0],Red:[.85,.1,.1],Blue:[.1,.2,.8],Green:[.1,.55,.2]},col=n=>PDFLib.rgb(...(RGB[n]||RGB.Black));
+function jsNeed(){if(!window.pdfjsLib)throw new Error("PDF renderer failed to load. Check your connection and reload.");pdfjsLib.GlobalWorkerOptions.workerSrc="pdf.worker.min.js"}
+async function jsDoc(f){jsNeed();try{return await pdfjsLib.getDocument({data:await bytes(f)}).promise}catch(e){throw new Error("“"+f.name+"” is damaged or password-protected.")}}
+async function rpage(pg,sc){const vp=pg.getViewport({scale:sc}),c=cv(Math.round(vp.width),Math.round(vp.height)),g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:g,viewport:vp}).promise;return{c}}
+async function squeeze(f,sc,q,x){need();const j=await jsDoc(f),d=await PDFLib.PDFDocument.create(),n=j.numPages;for(let i=1;i<=n;i++){if(x.stop())throw new Error("Cancelled.");const pg=await j.getPage(i),v=pg.getViewport({scale:1}),{c}=await rpage(pg,sc),im=await d.embedJpg(await bytesOf(await blobOf(c,"image/jpeg",q)));c.width=0;d.addPage([v.width,v.height]).drawImage(im,{x:0,y:0,width:v.width,height:v.height});x.step(i,n)}return pdfBlob(d)}
+const TYPE=F("fmt","Output format","sel","JPG",["JPG","PNG","WebP"]),MT={JPG:"image/jpeg",PNG:"image/png",WebP:"image/webp"};
+const TOOLS=[
+["merge","Merge PDF","pdf","Combine PDFs in the order listed.",PA,1,[],async(fs,o,x)=>{const d=await PDFLib.PDFDocument.create();for(let i=0;i<fs.length;i++){if(x.stop())return[];const s=await pdfOf(fs[i]);(await d.copyPages(s,s.getPageIndices())).forEach(p=>d.addPage(p));x.step(i+1,fs.length)}return[out(await pdfBlob(d),"merged.pdf")]}],
+["split","Split PDF","pdf","Split into files of N pages each.",PA,0,[F("n","Pages per file","num","1")],async(fs,o,x)=>{const s=await pdfOf(fs[0]),n=Math.max(1,num(o.n,1)),t=s.getPageCount(),r=[];for(let a=0;a<t;a+=n){if(x.stop())break;const d=await PDFLib.PDFDocument.create();(await d.copyPages(s,[...Array(Math.min(n,t-a)).keys()].map(i=>a+i))).forEach(p=>d.addPage(p));r.push(out(await pdfBlob(d),base(fs[0].name)+"-part"+(r.length+1)+".pdf"));x.step(Math.min(a+n,t),t)}return r}],
+["extract","Extract Pages","pdf","Keep only the pages you choose.",PA,0,[F("p","Pages (e.g. 1-3,5)","text","")],async(fs,o)=>{const s=await pdfOf(fs[0]),i=pages(o.p,s.getPageCount()),d=await PDFLib.PDFDocument.create();(await d.copyPages(s,i)).forEach(p=>d.addPage(p));return[out(await pdfBlob(d),base(fs[0].name)+"-extract.pdf")]}],
+["delete","Delete Pages","pdf","Remove the pages you choose.",PA,0,[F("p","Pages to delete","text","")],async(fs,o)=>{const d=await pdfOf(fs[0]),n=d.getPageCount(),del=new Set(pages(o.p,n));if(del.size>=n)throw new Error("That would delete every page.");[...del].sort((a,b)=>b-a).forEach(i=>d.removePage(i));return[out(await pdfBlob(d),base(fs[0].name)+"-edited.pdf")]}],
+["reorder","Reorder / Duplicate Pages","pdf","Type the new page order. Repeat a number to duplicate it; leave one out to drop it.",PA,0,[F("p","New order (e.g. 3,1,2,2)","text","")],async(fs,o)=>{const s=await pdfOf(fs[0]),i=pages(o.p,s.getPageCount()),d=await PDFLib.PDFDocument.create();(await d.copyPages(s,i)).forEach(p=>d.addPage(p));return[out(await pdfBlob(d),base(fs[0].name)+"-reordered.pdf")]}],
+["rotate","Rotate PDF","pdf","Rotate chosen pages (blank = all).",PA,0,[F("p","Pages (blank = all)","text",""),F("a","Rotate by","sel","90",["90","180","270"])],async(fs,o)=>{const d=await pdfOf(fs[0]),ps=d.getPages();pages(o.p,ps.length,1).forEach(i=>ps[i].setRotation(PDFLib.degrees((ps[i].getRotation().angle+ +o.a)%360)));return[out(await pdfBlob(d),base(fs[0].name)+"-rotated.pdf")]}],
+["pagenum","Page Numbers","pdf","Stamp page numbers.",PA,0,[F("pos","Position","sel","Bottom centre",["Bottom centre","Bottom right","Top centre"]),F("s","Size","num","12")],async(fs,o)=>{const d=await pdfOf(fs[0]),f=await d.embedFont(PDFLib.StandardFonts.Helvetica),sz=num(o.s,12);d.getPages().forEach((p,i)=>{const{width:w,height:h}=p.getSize(),t=String(i+1),tw=f.widthOfTextAtSize(t,sz);const x=o.pos==="Bottom right"?w-tw-30:(w-tw)/2,y=o.pos==="Top centre"?h-30:24;p.drawText(t,{x,y,size:sz,font:f})});return[out(await pdfBlob(d),base(fs[0].name)+"-numbered.pdf")]}],
+["watermark","Watermark","pdf","Stamp diagonal text on every page. Latin characters only.",PA,0,[F("t","Watermark text","text","CONFIDENTIAL"),F("o","Opacity %","num","25")],async(fs,o)=>{if(!o.t)throw new Error("Enter watermark text.");const d=await pdfOf(fs[0]),f=await d.embedFont(PDFLib.StandardFonts.HelveticaBold);try{d.getPages().forEach(p=>{const{width:w,height:h}=p.getSize(),sz=Math.min(w,h)/8,tw=f.widthOfTextAtSize(o.t,sz),k=Math.SQRT1_2;p.drawText(o.t,{x:w/2-tw/2*k,y:h/2-tw/2*k,size:sz,font:f,rotate:PDFLib.degrees(45),color:PDFLib.rgb(.5,.5,.5),opacity:Math.min(1,Math.max(.05,num(o.o,25)/100))})})}catch(e){throw new Error("Watermark text must use basic Latin characters.")}return[out(await pdfBlob(d),base(fs[0].name)+"-watermarked.pdf")]}],
+["optimise","Optimise PDF","pdf","Re-save with a leaner structure and clear metadata. Savings depend on the source; image-heavy PDFs may not shrink.",PA,0,[],async(fs)=>{const d=await pdfOf(fs[0]);["Title","Author","Subject","Keywords","Creator","Producer"].forEach(k=>d["set"+k]&&d["set"+k](k==="Keywords"?[]:""));return[out(new Blob([await d.save({useObjectStreams:true})],{type:"application/pdf"}),base(fs[0].name)+"-optimised.pdf")]}],
+["meta","PDF Metadata","pdf","View document properties.",PA,0,[],async(fs)=>{const d=await pdfOf(fs[0]),p=d.getPage(0).getSize(),g=v=>v?String(v):"—";return{info:[["File",fs[0].name],["Size",fmt(fs[0].size)],["Pages",d.getPageCount()],["First page",Math.round(p.width)+" × "+Math.round(p.height)+" pt"],["Title",g(d.getTitle())],["Author",g(d.getAuthor())],["Subject",g(d.getSubject())],["Creator",g(d.getCreator())],["Producer",g(d.getProducer())],["Created",g(d.getCreationDate())],["Modified",g(d.getModificationDate())]]}}],
+["img2pdf","Images to PDF","img","Each image becomes a page, in the order listed.",IA,1,[F("s","Page size","sel","Fit to image",["Fit to image","A4"])],async(fs,o,x)=>{need();const d=await PDFLib.PDFDocument.create();for(let i=0;i<fs.length;i++){if(x.stop())return[];const t=fs[i].type==="image/jpeg"?"image/jpeg":"image/png",im=await(t==="image/jpeg"?d.embedJpg:d.embedPng).call(d,await bytesOf(await raster(fs[i],{type:t,q:92})));x.step(i+1,fs.length);const A=o.s==="A4";const pw=A?595:im.width,ph=A?842:im.height,pg=d.addPage([pw,ph]),k=A?Math.min(pw/im.width,ph/im.height):1,w=im.width*k,h=im.height*k;pg.drawImage(im,{x:(pw-w)/2,y:(ph-h)/2,width:w,height:h})}return[out(await pdfBlob(d),"images.pdf")]}],
+["imgcompress","Compress Image","img","Lower quality to shrink file size (JPG or WebP output).",IA,1,[F("q","Quality %","num","70"),F("fmt","Output","sel","JPG",["JPG","WebP"])],imgEach("compressed",(f,o)=>({type:MT[o.fmt],q:num(o.q,70)}))],
+["resize","Resize Image","img","Set width and/or height in pixels. Leave one blank to keep the ratio.",IA,1,[F("w","Width px","num",""),F("h","Height px","num","")],imgEach("resized",(f,o)=>{if(!o.w&&!o.h)throw new Error("Enter a width or a height.");return{w:num(o.w,0),h:num(o.h,0),type:keepType(f),q:92}})],
+["crop","Crop Image","img","Trim a percentage from each edge.",IA,1,[F("l","Left %","num","0"),F("t","Top %","num","0"),F("r","Right %","num","0"),F("b","Bottom %","num","0")],imgEach("cropped",(f,o)=>({crop:[num(o.l,0),num(o.t,0),num(o.r,0),num(o.b,0)],type:keepType(f),q:92}))],
+["imgrotate","Rotate Image","img","Rotate clockwise.",IA,1,[F("a","Rotate by","sel","90",["90","180","270"])],imgEach("rotated",(f,o)=>({rot:+o.a,type:keepType(f),q:92}))],
+["convert","Convert Image","img","JPG, PNG or WebP. JPG has no transparency, so it gets a white background.",IA,1,[TYPE,F("q","Quality % (JPG/WebP)","num","90")],imgEach("converted",(f,o)=>({type:MT[o.fmt],q:num(o.q,90)}))],
+["imginfo","Image Info","img","View dimensions, size and format.",IA,0,[],async(fs)=>{const b=await createImageBitmap(fs[0]);const r={info:[["File",fs[0].name],["Format",fs[0].type],["Size",fmt(fs[0].size)],["Dimensions",b.width+" × "+b.height+" px"],["Modified",new Date(fs[0].lastModified).toLocaleString()]]};b.close&&b.close();return r}],
+["compress","Compress PDF","pdf","Pages are re-rendered as images to cut size, so text is no longer selectable. Results depend on the source file.",PA,0,[F("l","Quality","sel","Medium",["High","Medium","Low"])],async(fs,o,x)=>{const L={High:[2,.85],Medium:[1.5,.65],Low:[1,.45]}[o.l];const b=await squeeze(fs[0],L[0],L[1],x),r=[out(b,base(fs[0].name)+"-compressed.pdf")];r.note=b.size<fs[0].size?"Reduced from "+fmt(fs[0].size)+" to "+fmt(b.size)+".":"Result ("+fmt(b.size)+") isn’t smaller than the original ("+fmt(fs[0].size)+"). Try Low quality.";return r}],
+["reduce","Reduce PDF Size","pdf","Tries stronger compression until the file fits your target. Text becomes non-selectable.",PA,0,[F("m","Target size MB","num","1")],async(fs,o,x)=>{const t=num(o.m,1)*1048576;let b;for(const[s,q]of[[1.5,.7],[1.2,.55],[1,.4],[.8,.3],[.6,.25]]){b=await squeeze(fs[0],s,q,x);if(b.size<=t)break}const r=[out(b,base(fs[0].name)+"-reduced.pdf")];r.note=b.size<=t?"Reached "+fmt(b.size)+".":"Smallest this method can reach: "+fmt(b.size)+", above your target.";return r}],
+["addtext","Add Text to PDF","pdf","Place text on chosen pages. Position is a percentage from the top-left. Latin characters only.",PA,0,[F("t","Text","text",""),F("p","Pages (blank = all)","text",""),F("x","Left %","num","10"),F("y","Top %","num","10"),F("s","Size","num","16"),F("c","Colour","sel","Black",Object.keys(RGB))],async(fs,o)=>{if(!o.t)throw new Error("Enter some text.");const d=await pdfOf(fs[0]),f=await d.embedFont(PDFLib.StandardFonts.Helvetica),ps=d.getPages(),sz=num(o.s,16);try{pages(o.p,ps.length,1).forEach(i=>{const{width:w,height:h}=ps[i].getSize();ps[i].drawText(o.t,{x:w*num(o.x,10)/100,y:h-h*num(o.y,10)/100-sz,size:sz,font:f,color:col(o.c)})})}catch(e){if(/WinAnsi|encode/i.test(e.message))throw new Error("Text must use basic Latin characters.");throw e}return[out(await pdfBlob(d),base(fs[0].name)+"-text.pdf")]}],
+["addimg","Add Image / Signature","pdf","Choose one PDF and one image (a PNG signature with a transparent background works best).",PA.concat(IA),1,[F("p","Pages (blank = all)","text",""),F("pos","Position","sel","Bottom right",["Bottom right","Bottom left","Top right","Top left","Centre"]),F("w","Width % of page","num","25")],async(fs,o)=>{const pf=fs.find(f=>f.type==="application/pdf"||/\.pdf$/i.test(f.name)),im=fs.find(f=>f.type.startsWith("image/"));if(!pf||!im)throw new Error("Add one PDF and one image.");const d=await pdfOf(pf),t=im.type==="image/jpeg"?"image/jpeg":"image/png",e=await(t==="image/jpeg"?d.embedJpg:d.embedPng).call(d,await bytesOf(await raster(im,{type:t,q:92}))),ps=d.getPages();pages(o.p,ps.length,1).forEach(i=>{const{width:w,height:h}=ps[i].getSize(),iw=w*Math.min(100,Math.max(1,num(o.w,25)))/100,ih=iw*e.height/e.width,m=24,P=o.pos;ps[i].drawImage(e,{x:P.includes("left")?m:P==="Centre"?(w-iw)/2:w-iw-m,y:P.startsWith("Top")?h-ih-m:P==="Centre"?(h-ih)/2:m,width:iw,height:ih})});return[out(await pdfBlob(d),base(pf.name)+"-image.pdf")]}],
+["highlight","Highlight Text","pdf","Highlights every match of a word or phrase. Works on PDFs with selectable text, not scans.",PA,0,[F("t","Text to find","text","")],async(fs,o,x)=>{if(!o.t)throw new Error("Enter text to find.");const j=await jsDoc(fs[0]),d=await pdfOf(fs[0]),ps=d.getPages(),k=o.t.toLowerCase();let n=0;for(let i=0;i<ps.length;i++){if(x.stop())throw new Error("Cancelled.");const tc=await(await j.getPage(i+1)).getTextContent();for(const it of tc.items){const s=it.str.toLowerCase();let p=s.indexOf(k);while(p>=0&&s.length){const L=s.length,h=it.height||Math.abs(it.transform[3]);ps[i].drawRectangle({x:it.transform[4]+it.width*p/L,y:it.transform[5]-h*.2,width:it.width*k.length/L,height:h*1.1,color:PDFLib.rgb(1,.92,0),opacity:.4});n++;p=s.indexOf(k,p+k.length)}}x.step(i+1,ps.length)}if(!n)throw new Error("No matches found. Scanned PDFs have no text to search.");const r=[out(await pdfBlob(d),base(fs[0].name)+"-highlighted.pdf")];r.note=n+" highlight"+(n>1?"s":"")+" added.";return r}],
+["annotate","Annotate PDF","pdf","Add a note, a rectangle or an underline to one page. Position and size are percentages of the page from the top-left.",PA,0,[F("k","Type","sel","Note",["Note","Rectangle","Underline"]),F("p","Page","num","1"),F("t","Note text","text",""),F("x","Left %","num","10"),F("y","Top %","num","10"),F("w","Width %","num","40"),F("h","Height %","num","10")],async(fs,o)=>{const d=await pdfOf(fs[0]),f=await d.embedFont(PDFLib.StandardFonts.Helvetica),n=d.getPageCount(),i=num(o.p,1);if(i<1||i>n)throw new Error("Page must be between 1 and "+n+".");const p=d.getPage(i-1),{width:W,height:H}=p.getSize(),w=W*num(o.w,40)/100,h=H*num(o.h,10)/100,x=W*num(o.x,10)/100,y=H-H*num(o.y,10)/100-h;if(o.k==="Note"){if(!o.t)throw new Error("Enter note text.");p.drawRectangle({x,y,width:w,height:h,color:PDFLib.rgb(1,.95,.6),borderColor:PDFLib.rgb(.8,.65,0),borderWidth:1});try{p.drawText(o.t,{x:x+5,y:y+h-14,size:10,font:f,maxWidth:w-10,lineHeight:12,color:PDFLib.rgb(0,0,0)})}catch(e){throw new Error("Note text must use basic Latin characters.")}}else if(o.k==="Rectangle")p.drawRectangle({x,y,width:w,height:h,borderColor:PDFLib.rgb(.85,.1,.1),borderWidth:2});else p.drawLine({start:{x,y},end:{x:x+w,y},thickness:2,color:PDFLib.rgb(.85,.1,.1)});return[out(await pdfBlob(d),base(fs[0].name)+"-annotated.pdf")]}],
+["headfoot","Headers & Footers","pdf","Use {page} and {pages} for numbering. Latin characters only.",PA,0,[F("h","Header text","text",""),F("f","Footer text","text","Page {page} of {pages}"),F("a","Align","sel","Centre",["Left","Centre","Right"]),F("s","Size","num","10")],async(fs,o)=>{if(!o.h&&!o.f)throw new Error("Enter header or footer text.");const d=await pdfOf(fs[0]),f=await d.embedFont(PDFLib.StandardFonts.Helvetica),ps=d.getPages(),sz=num(o.s,10);try{ps.forEach((p,i)=>{const{width:W,height:H}=p.getSize(),put=(t,y)=>{if(!t)return;t=t.replace(/\{page\}/g,i+1).replace(/\{pages\}/g,ps.length);const tw=f.widthOfTextAtSize(t,sz);p.drawText(t,{x:o.a==="Left"?36:o.a==="Right"?W-tw-36:(W-tw)/2,y,size:sz,font:f,color:PDFLib.rgb(.2,.2,.2)})};put(o.h,H-30);put(o.f,20)})}catch(e){throw new Error("Text must use basic Latin characters.")}return[out(await pdfBlob(d),base(fs[0].name)+"-hf.pdf")]}],
+["pdf2img","PDF to Images","pdf","Export every page as an image.",PA,0,[F("f","Format","sel","PNG",["PNG","JPG"]),F("s","Scale (2 = sharp)","num","2")],async(fs,o,x)=>{const j=await jsDoc(fs[0]),n=j.numPages,r=[],sc=Math.min(4,Math.max(.5,num(o.s,2))),t=o.f==="JPG"?"image/jpeg":"image/png";for(let i=1;i<=n;i++){if(x.stop())break;const{c}=await rpage(await j.getPage(i),sc);r.push(out(await blobOf(c,t,.92),base(fs[0].name)+"-p"+i+"."+EXT[t]));c.width=0;x.step(i,n)}return r}],
+["pdf2txt","PDF to Text","pdf","Extract selectable text into a .txt file. Scanned PDFs have none.",PA,0,[],async(fs,o,x)=>{const j=await jsDoc(fs[0]);let t="";for(let i=1;i<=j.numPages;i++){if(x.stop())throw new Error("Cancelled.");const c=await(await j.getPage(i)).getTextContent();t+="--- Page "+i+" ---\n"+c.items.map(m=>m.str+(m.hasEOL?"\n":" ")).join("")+"\n\n";x.step(i,j.numPages)}if(!t.replace(/--- Page \d+ ---|\s/g,""))throw new Error("No selectable text found. This looks like a scanned PDF.");return[out(new Blob([t],{type:"text/plain"}),base(fs[0].name)+".txt")]}],
+["txt2pdf","Text to PDF","pdf","Turn a .txt file into an A4 PDF. Basic Latin characters; others become ?.",["text/plain"],0,[F("s","Font size","num","11")],async(fs,o)=>{need();const d=await PDFLib.PDFDocument.create(),f=await d.embedFont(PDFLib.StandardFonts.Helvetica),sz=num(o.s,11),W=595,H=842,M=50,lh=sz*1.4,mw=W-2*M;let p=d.addPage([W,H]),y=H-M;const tx=(await fs[0].text()).replace(/\t/g,"  ").replace(/[^\n\x20-\x7E\xA0-\xFF]/g,"?");for(const ln of tx.split(/\r?\n/)){let cur="";const flush=()=>{if(y<M){p=d.addPage([W,H]);y=H-M}p.drawText(cur,{x:M,y:y-sz,size:sz,font:f});y-=lh;cur=""};if(!ln)flush();else for(const w of ln.split(" ")){const t=cur?cur+" "+w:w;if(f.widthOfTextAtSize(t,sz)>mw&&cur){flush();cur=w}else cur=t}if(cur)flush()}return[out(await pdfBlob(d),base(fs[0].name)+".pdf")]}],
+["protect","Protect PDF","pdf","Password encryption isn’t possible with the PDF engine used here, so it isn’t offered.",PA,0,[],null]
+].map(a=>({id:a[0],n:a[1],c:a[2],d:a[3],a:a[4],m:a[5],f:a[6],run:a[7]}));
+async function bytesOf(b){return new Uint8Array(await b.arrayBuffer())}
+const NAV=[["home","Home"],["all","All Tools"],["pdf","PDF Tools"],["img","Image Tools"],["recent","Recent Files"],["history","File History"],["settings","Settings"],["about","About"]];
+let view="home",tool=null,q="",files=[],opts={},res=null,err="",busy=false,stop=false,hq="",hs="date";
+const ls=(k,d)=>{try{return JSON.parse(localStorage.getItem("edith."+k))??d}catch(e){return d}};
+const lset=(k,v)=>{try{localStorage.setItem("edith."+k,JSON.stringify(v))}catch(e){}};
+async function save(name,blob){let dl=null;try{dl=window.claude&&await claude.use("downloads")}catch(e){}
+if(dl){try{await dl.save({filename:name,data:blob})}catch(e){if(e.code!=="declined")alert("Could not save: "+(e.message||e.code))}return}
+const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+async function zipAll(){if(!window.JSZip)return alert("ZIP engine failed to load.");const z=new JSZip();res.out.forEach(r=>z.file(r.name,r.blob));save("edith-files.zip",await z.generateAsync({type:"blob"}))}
+function go(v,t){view=v;tool=t||null;files=[];opts={};res=null;err="";busy=false;if(t){TOOLS.find(x=>x.id===t).f.forEach(f=>opts[f.k]=f.v)}render();$("#main").focus();scrollTo(0,0)}
+function match(){const w=q.trim().toLowerCase().split(/\s+/).filter(Boolean);return TOOLS.filter(t=>w.every(x=>(t.n+" "+t.d).toLowerCase().includes(x)))}
+function card(t){return`<button class="card" data-t="${t.id}"><h3>${esc(t.n)}</h3><p>${esc(t.d)}</p><span class="tag ${t.run?"ok":""}">${t.run?"Ready":"Coming soon"}</span></button>`}
+const grid=l=>l.length?`<div class="grid">${l.map(card).join("")}</div>`:`<div class="empty">No tools match “${esc(q)}”.</div>`;
+const sbox=()=>`<input class="search" id="q" type="search" placeholder="Search tools: merge, compress, resize…" aria-label="Search tools" value="${esc(q)}">`;
+function histRows(h){return h.length?h.map(x=>`<div class="row"><span>${esc(x.name)}<br><small style="color:var(--tx2)">${new Date(x.t).toLocaleString()} · ${esc(x.fmt)}</small></span><span>${fmt(x.size)} ${view==="history"?`<button class="ib" data-rm="${x.t}" aria-label="Remove">×</button>`:""}</span></div>`).join(""):`<div class="empty">Nothing here yet. Files you process will be listed here (names and sizes only).</div>`}
+function toolView(){const t=TOOLS.find(x=>x.id===tool);
+if(!t.run)return`<button class="back" id="bk">← Back</button><h1>${esc(t.n)}</h1><div class="card"><p>${esc(t.d)}</p><span class="tag">Coming soon</span></div>`;
+return`<button class="back" id="bk">← Back</button><h1>${esc(t.n)}</h1><p class="sub">${esc(t.d)}</p>
+<div class="drop" id="dz"><p>Drop ${t.c==="pdf"?"PDF":"image"} ${t.m?"files":"file"} here</p><button class="btn" id="pick">Choose ${t.m?"files":"file"}</button><input type="file" id="fi" ${t.m?"multiple":""} hidden accept="${t.a.join(",")}${t.c==="pdf"?",.pdf":""}"></div>
+${err?`<div class="err" role="alert">${esc(err)}</div>`:""}
+${files.map((f,i)=>`<div class="row"><span>${i+1}. ${esc(f.name)}</span><span>${fmt(f.size)} ${t.m&&files.length>1?`<button class="ib" data-up="${i}" aria-label="Move up">↑</button>`:""}<button class="ib" data-del="${i}" aria-label="Remove">×</button></span></div>`).join("")}
+<div class="f">${t.f.map(f=>`<label>${esc(f.l)}${f.t==="sel"?`<select data-k="${f.k}">${f.o.map(o=>`<option ${opts[f.k]===o?"selected":""}>${esc(o)}</option>`).join("")}</select>`:`<input data-k="${f.k}" inputmode="${f.t==="num"?"decimal":"text"}" value="${esc(opts[f.k]??"")}">`}</label>`).join("")}</div>
+<button class="btn" id="run" ${busy||!files.length?"disabled":""}>${busy?"Working…":"Run"}</button> ${busy?`<button class="btn g" id="cn">Cancel</button>`:""}
+<div class="bar" ${busy?"":"hidden"}><i id="pg"></i></div>
+${res?resView():""}`}
+function resView(){if(res.info)return`<h2 class="ok">Done</h2><div class="card">${res.info.map(r=>`<div class="row"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join("")}</div>`;
+return`<h2 class="ok">Done: ${res.out.length} file${res.out.length>1?"s":""}</h2>${res.note?`<p>${esc(res.note)}</p>`:""}${res.out.map((r,i)=>`<div class="row"><span>${esc(r.name)}<br><small style="color:var(--tx2)">${fmt(r.blob.size)}</small></span><button class="btn" data-dl="${i}">Download</button></div>`).join("")}${res.out.length>1?`<p><button class="btn g" id="za">Download all (ZIP)</button></p>`:""}`}
+function body(){if(tool)return toolView();
+if(view==="home"){const u=ls("usage",{}),fr=TOOLS.filter(t=>t.run).sort((a,b)=>(u[b.id]||0)-(u[a.id]||0)).slice(0,4);
+return`<div class="brand"><small>OBSYRA presents</small><div class="n">EDITH</div><em>Edit everything. Share nothing.</em></div><h1>Welcome</h1><p class="sub">Your private PDF and image toolkit. Files never leave your device.</p>${sbox()}
+<div id="res">${q?`<h2>Results</h2>${grid(match())}`:`<h2>Frequently used</h2>${grid(fr)}<h2>PDF tools</h2>${grid(TOOLS.filter(t=>t.c==="pdf"&&t.run).slice(0,4))}<h2>Image tools</h2>${grid(TOOLS.filter(t=>t.c==="img"&&t.run).slice(0,4))}<h2>Recent files</h2>${histRows(ls("history",[]).slice(0,5))}`}</div>`}
+if(["all","pdf","img"].includes(view)){const l=match().filter(t=>view==="all"||t.c===view);return`<h1>${NAV.find(n=>n[0]===view)[1]}</h1><p class="sub">${l.filter(t=>t.run).length} ready · ${l.filter(t=>!t.run).length} coming soon</p>${sbox()}<div id="res" style="margin-top:14px">${grid(l)}</div>`}
+if(view==="recent")return`<h1>Recent Files</h1><p class="sub">Names and sizes only, never contents.</p>${histRows(ls("history",[]).slice(0,15))}`;
+if(view==="history"){let h=ls("history",[]).filter(x=>x.name.toLowerCase().includes(hq.toLowerCase()));h.sort((a,b)=>hs==="name"?a.name.localeCompare(b.name):hs==="size"?b.size-a.size:b.t-a.t);
+return`<h1>File History</h1><div class="f"><input class="search" id="hq" type="search" placeholder="Search history" value="${esc(hq)}"><select id="hs"><option value="date" ${hs==="date"?"selected":""}>Newest first</option><option value="name" ${hs==="name"?"selected":""}>Name</option><option value="size" ${hs==="size"?"selected":""}>Size</option></select></div><div id="hl">${histRows(h)}</div>${h.length?`<p><button class="btn g" id="ch">Clear history</button></p>`:""}`}
+if(view==="settings")return`<h1>Settings</h1><p class="sub">Dark theme is the default and only theme.</p><div class="card"><h3>Storage</h3><p id="st">Checking…</p><p style="margin-top:12px"><button class="btn g" id="clr">Clear local data</button></p></div><div class="card" style="margin-top:12px"><h3>Privacy</h3><p>All processing happens in your browser. Nothing is uploaded. Only file names, sizes, formats and tool-usage counts are kept on this device.</p><p style="margin-top:8px"><a href="privacy.html" target="_blank" rel="noopener" style="color:var(--ac)">Read the privacy policy</a></p></div><div class="card" style="margin-top:12px"><h3>Version</h3><p>${VERSION}</p></div>`;
+return`<h1>About EDITH</h1><p class="sub">EDITH by OBSYRA · ${VERSION}</p><div class="card"><p>Merge, split, extract, delete, reorder, rotate, number, watermark and inspect PDFs; resize, crop, rotate, convert and compress images; turn images into PDFs. Password protection and Word/Excel conversion are not available.</p></div>`}
+function render(){$("#nav").innerHTML=`<div class="logo">${SVG}<div><b>EDITH</b><small>by OBSYRA</small></div></div>`+NAV.map(n=>`<button data-v="${n[0]}" class="${!tool&&view===n[0]?"on":""}">${n[1]}</button>`).join("");$("#main").innerHTML=body();bind()}
+function bindCards(){document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>go(view,b.dataset.t))}
+async function runTool(){const t=TOOLS.find(x=>x.id===tool);busy=true;stop=false;err="";res=null;render();
+const x={stop:()=>stop,step:(i,n)=>{const e=$("#pg");if(e)e.style.width=Math.round(i/n*100)+"%"}};
+try{await new Promise(r=>setTimeout(r,30));const r=await t.run(files,opts,x);if(stop)err="Cancelled.";else if(r.info)res=r;else{res={out:r,note:r.note};const h=ls("history",[]);const now=Date.now();r.forEach((o,i)=>h.unshift({name:o.name,size:o.blob.size,fmt:o.blob.type||"file",t:now+i}));lset("history",h.slice(0,200));const u=ls("usage",{});u[t.id]=(u[t.id]||0)+1;lset("usage",u)}}
+catch(e){err=(e&&e.message)||"Something went wrong.";if(/memory|allocation/i.test(err))err="Not enough memory for this file. Try a smaller one."}
+busy=false;render()}
+function bind(){
+document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));bindCards();
+const qi=$("#q");if(qi)qi.oninput=e=>{q=e.target.value;if(view==="home"){const p=e.target.selectionStart;render();const n=$("#q");n.focus();n.setSelectionRange(p,p)}else{$("#res").innerHTML=grid(match().filter(t=>view==="all"||t.c===view));bindCards()}};
+if($("#bk"))$("#bk").onclick=()=>go(view);
+const hq_=$("#hq");if(hq_){hq_.oninput=e=>{hq=e.target.value;const p=e.target.selectionStart;render();const n=$("#hq");n.focus();n.setSelectionRange(p,p)};$("#hs").onchange=e=>{hs=e.target.value;render()};if($("#ch"))$("#ch").onclick=()=>{if(confirm("Clear all file history?")){lset("history",[]);render()}}}
+document.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{lset("history",ls("history",[]).filter(x=>String(x.t)!==b.dataset.rm));render()});
+const dz=$("#dz");if(dz){const t=TOOLS.find(x=>x.id===tool);
+const take=list=>{err="";res=null;const ok=[];for(const f of list){const pdf=t.c==="pdf",good=t.a.includes(f.type)||(pdf&&/\.pdf$/i.test(f.name)&&!f.type);if(!good){err="“"+f.name+"” isn’t a supported "+(pdf?"PDF":"image")+" file.";continue}if(!f.size){err="“"+f.name+"” is empty.";continue}if(f.size>MAXMB*1048576){err="“"+f.name+"” is over "+MAXMB+" MB.";continue}ok.push(f)}files=t.m?files.concat(ok):ok.slice(0,1);render()};
+$("#pick").onclick=()=>$("#fi").click();$("#fi").onchange=e=>take([...e.target.files]);
+dz.ondragover=e=>{e.preventDefault();dz.classList.add("over")};dz.ondragleave=()=>dz.classList.remove("over");dz.ondrop=e=>{e.preventDefault();take([...e.dataTransfer.files])};
+document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{files.splice(+b.dataset.del,1);render()});
+document.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{const i=+b.dataset.up;if(i>0){[files[i-1],files[i]]=[files[i],files[i-1]];render()}});
+document.querySelectorAll("[data-k]").forEach(e=>e.oninput=e.onchange=ev=>opts[e.dataset.k]=ev.target.value);
+if($("#run"))$("#run").onclick=runTool;if($("#cn"))$("#cn").onclick=()=>stop=true;
+document.querySelectorAll("[data-dl]").forEach(b=>b.onclick=()=>{const r=res.out[+b.dataset.dl];save(r.name,r.blob)});if($("#za"))$("#za").onclick=zipAll}
+if($("#st")){(navigator.storage&&navigator.storage.estimate?navigator.storage.estimate():Promise.reject()).then(e=>$("#st").textContent="Using "+fmt(e.usage||0)+" of roughly "+fmt(e.quota||0)+" available to this site.").catch(()=>$("#st").textContent="Storage details aren’t available in this browser.");$("#clr").onclick=()=>{if(confirm("Clear all EDITH data stored in this browser?")){try{Object.keys(localStorage).filter(k=>k.startsWith("edith.")).forEach(k=>localStorage.removeItem(k))}catch(e){}render()}}}}
+render();
+if("serviceWorker"in navigator&&/^https?:/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
