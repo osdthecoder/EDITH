@@ -21,8 +21,8 @@ Nothing in this notice limits the rights that GitHub's Terms of Service
 give to other users of GitHub, such as viewing and forking this
 repository on GitHub.
 
-Third-party components (pdf-lib, PDF.js and JSZip) are loaded from their
-own sources and remain under their own licences. This notice does not
+Third-party components (pdf-lib, PDF.js and JSZip) are included in the lib
+folder and remain under their own licences (see THIRD_PARTY_NOTICES.md). This notice does not
 change their terms.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS

@@ -42,8 +42,8 @@ No accounts, no analytics, no uploads of your files. See
 ## Using it
 
 Open the web address of this project's GitHub Pages site, or open
-`index.html` in a modern browser (internet is needed the first time to load
-the PDF libraries). In Chrome on Android you can choose **Install app** to
+`index.html` in a modern browser (no other downloads are needed;
+the PDF libraries are included). In Chrome on Android you can choose **Install app** to
 add it to your home screen.
 
 ## Built with
@@ -53,17 +53,12 @@ add it to your home screen.
 - [JSZip](https://github.com/Stuk/jszip) (MIT or GPL-3.0)
 
 Licences are listed as understood by the author; check each project for the
-current terms.
+current terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Licence
 
 Copyright (c) 2026 OBSYRA. All rights reserved. The source is visible for
 transparency but is not open source. See [LICENSE](LICENSE).
-
-This project and its source code are proprietary.
-No permission is granted to copy, modify, distribute,
-or commercially use this software without prior
-written permission from the owner.
 
 ## Contact
 
