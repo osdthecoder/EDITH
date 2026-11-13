@@ -1,0 +1,35 @@
+name: Fetch libraries
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find app folder
+        run: |
+          M=$(find . -mindepth 2 \( -name manifest.json -o -name index.html \) -not -path './.git/*' -not -path '*/lib/*' | head -1)
+          [ -n "$M" ] || { echo "No app folder found"; exit 1; }
+          echo "APP_DIR=$(dirname "$M")" >> "$GITHUB_ENV"
+          echo "Using: $(dirname "$M")"
+      - name: Download libraries
+        run: |
+          set -e
+          mkdir -p "$APP_DIR/lib/licenses"
+          B=https://cdnjs.cloudflare.com/ajax/libs
+          curl -fsSL "$B/pdf-lib/1.17.1/pdf-lib.min.js" -o "$APP_DIR/lib/pdf-lib.min.js"
+          curl -fsSL "$B/pdf.js/3.11.174/pdf.min.js" -o "$APP_DIR/lib/pdf.min.js"
+          curl -fsSL "$B/pdf.js/3.11.174/pdf.worker.min.js" -o "$APP_DIR/lib/pdf.worker.min.js"
+          curl -fsSL "$B/jszip/3.10.1/jszip.min.js" -o "$APP_DIR/lib/jszip.min.js"
+          for f in "$APP_DIR"/lib/*.js; do [ "$(wc -c < "$f")" -gt 10000 ] || { echo "$f too small"; exit 1; }; done
+          curl -fsSL https://raw.githubusercontent.com/Hopding/pdf-lib/master/LICENSE.md -o "$APP_DIR/lib/licenses/pdf-lib-LICENSE.md" || echo "pdf-lib licence not fetched"
+          curl -fsSL https://raw.githubusercontent.com/mozilla/pdf.js/master/LICENSE -o "$APP_DIR/lib/licenses/pdfjs-LICENSE" || echo "pdf.js licence not fetched"
+          curl -fsSL https://raw.githubusercontent.com/Stuk/jszip/main/LICENSE.markdown -o "$APP_DIR/lib/licenses/jszip-LICENSE.markdown" || echo "jszip licence not fetched"
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$APP_DIR/lib"
+          git commit -m "Add bundled libraries" || echo "Nothing to commit"
+          git push
