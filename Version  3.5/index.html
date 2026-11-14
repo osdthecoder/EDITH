@@ -105,7 +105,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 <script src="lib/jszip.min.js"></script>
 <div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
 <script>
-const VERSION="0.7.0";const MAXMB=100;
+const VERSION="0.7.1";const MAXMB=100;
 const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
 const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
 const $=s=>document.querySelector(s);
@@ -312,8 +312,14 @@ fetch("lib/icons.json").then(r=>r.ok?r.json():{}).then(j=>{ICONS=j;applyIcons()}
 render();
 </script>
 <script>
-async function qrun(bytes,args,chk){let f;try{f=(await import("./lib/qpdf.js")).default}catch(e){throw new Error("The password engine isn’t installed yet. Run the “Fetch password engine” workflow first.")}
-if(typeof f!=="function")f=window.createModule||window.Module;if(typeof f!=="function")throw new Error("The password engine could not start.");
+let QF=null;
+async function qfactory(){if(QF)return QF;let t;try{const r=await fetch("lib/qpdf.js");if(!r.ok)throw 0;t=await r.text()}catch(e){throw new Error("The password engine isn’t installed yet. Run the “Fetch password engine” workflow first.")}
+let f=null,info="";
+try{const m=await import("./lib/qpdf.js");f=typeof m.default==="function"?m.default:Object.values(m).find(v=>typeof v==="function");info="module exports: "+(Object.keys(m).join(",")||"none")}catch(e){info="import failed"}
+if(!f){try{const mod={exports:{}};f=new Function("module","exports",t+"\n;return typeof createModule!=='undefined'?createModule:null")(mod,mod.exports);if(typeof f!=="function")f=typeof mod.exports==="function"?mod.exports:Object.values(mod.exports).find(v=>typeof v==="function")}catch(e){info+="; script failed: "+e.message}}
+if(typeof f!=="function")throw new Error("The password engine could not start ("+info+"). File begins: "+t.slice(0,70).replace(/\s+/g," "));
+return QF=f}
+async function qrun(bytes,args,chk){const f=await qfactory();
 const errs=[],q=await f({locateFile:p=>"lib/"+p.split("/").pop(),print:()=>{},printErr:m=>errs.push(m)});
 q.FS.writeFile("/i.pdf",bytes);try{q.callMain(args)}catch(e){}
 const t=errs.join(" ");
