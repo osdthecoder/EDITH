@@ -18,7 +18,8 @@ pages, rotate, add page numbers, add a watermark, add text, add an image or
 signature, highlight text, annotate, add headers and footers, compress,
 reduce size, optimise, repair, compare, view metadata, PDF to images, PDF to
 text, text to PDF, zip files, protect a PDF with a password, and remove a
-password you already know.
+password you already know, extract images from a PDF, and a beta Word to
+PDF converter for simple documents.
 
 **Images:** images to PDF, compress, resize, crop, rotate, convert between
 JPG, PNG and WebP, and view image info.
@@ -28,7 +29,8 @@ sorting and clearing.
 
 ## What it cannot do (yet)
 
-- Convert Word, Excel or PowerPoint files to PDF.
+- Convert PowerPoint or Excel files to PDF, or Word files with complex layouts
+  (Word to PDF is a beta for simple documents).
 - Draw a signature by hand (you can add a signature as an image).
 
 Compressing a PDF re-draws its pages as images, so the text in the

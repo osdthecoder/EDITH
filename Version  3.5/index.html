@@ -98,6 +98,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 .pmt b{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.75);border-radius:8px;padding:0 7px;font-size:12px}
 .grip{position:absolute;right:4px;bottom:4px;width:36px;height:36px;display:grid;place-items:center;background:rgba(0,0,0,.7);border-radius:10px;touch-action:none;cursor:grab}
 .pmt.ov{outline:2px dashed var(--ac)}.pmbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;position:sticky;top:0;z-index:3;background:var(--bg);padding:8px 0}
+@media(max-width:760px){nav [data-v="doc"],nav [data-v="util"]{display:none}}
 </style></head><body>
 <script src="lib/pdf-lib.min.js"></script>
 <script src="lib/pdf.min.js"></script>
@@ -105,7 +106,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 <script src="lib/jszip.min.js"></script>
 <div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
 <script>
-const VERSION="0.7.1";const MAXMB=100;
+const VERSION="0.8.0";const MAXMB=100;
 const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
 const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
 const $=s=>document.querySelector(s);
@@ -188,7 +189,7 @@ r.note=rows.slice(1).map(a=>a.join(": ")).join(" · ");return r}],
 ].map(a=>({id:a[0],n:a[1],c:a[2],d:a[3],a:a[4],m:a[5],f:a[6],run:a[7]}));
 async function bytesOf(b){return new Uint8Array(await b.arrayBuffer())}
 const ICON={merge:"🔗",split:"✂️",extract:"📤",delete:"🗑️",reorder:"🔀",rotate:"🔄",pagenum:"🔢",watermark:"💧",optimise:"⚙️",meta:"ℹ️",img2pdf:"🖼️",imgcompress:"📉",resize:"📐",crop:"✂️",imgrotate:"🔄",convert:"🔁",imginfo:"ℹ️",compress:"🗜️",reduce:"📉",addtext:"🔤",addimg:"✍️",highlight:"🖍️",annotate:"📝",headfoot:"📄",pdf2img:"🖼️",pdf2txt:"📃",txt2pdf:"📃",protect:"🔒",repair:"🛠️",compare:"🔍",zipfiles:"📦",ppt2pdf:"📊"};
-const NAV=[["home","Home"],["all","All Tools"],["pdf","PDF Tools"],["img","Image Tools"],["recent","Recent Files"],["history","File History"],["settings","Settings"],["about","About"]];
+const NAV=[["home","Home"],["all","All Tools"],["pdf","PDF Tools"],["img","Image Tools"],["doc","Documents"],["util","File Tools"],["recent","Recent Files"],["history","File History"],["settings","Settings"],["about","About"]];
 let view="home",tool=null,q="",files=[],opts={},res=null,err="",busy=false,stop=false,hq="",hs="date";
 const ls=(k,d)=>{try{return JSON.parse(localStorage.getItem("edith."+k))??d}catch(e){return d}};
 const lset=(k,v)=>{try{localStorage.setItem("edith."+k,JSON.stringify(v))}catch(e){}};
@@ -205,7 +206,7 @@ function histRows(h){return h.length?h.map(x=>`<div class="row"><span>${esc(x.na
 function toolView(){const t=TOOLS.find(x=>x.id===tool);
 if(!t.run)return`<button class="back" id="bk">← Back</button><h1>${esc(t.n)}</h1><div class="card"><p>${esc(t.d)}</p><span class="tag">Coming soon</span></div>`;
 return`<button class="back" id="bk">← Back</button><h1>${esc(t.n)}</h1><p class="sub">${esc(t.d)}</p>
-<div class="drop" id="dz"><p>Drop ${!t.a?"any":t.c==="pdf"?"PDF":"image"} ${t.m?"files":"file"} here</p><button class="btn" id="pick">Choose ${t.m?"files":"file"}</button><input type="file" id="fi" ${t.m?"multiple":""} hidden accept="${(t.a||[]).join(",")}${t.a&&t.c==="pdf"?",.pdf":""}"></div>
+<div class="drop" id="dz"><p>Drop ${!t.a?"any":t.c==="pdf"?"PDF":"image"} ${t.m?"files":"file"} here</p><button class="btn" id="pick">Choose ${t.m?"files":"file"}</button><input type="file" id="fi" ${t.m?"multiple":""} hidden accept="${(t.a||[]).join(",")}${t.a&&t.c==="pdf"?",.pdf":t.c==="doc"?",.docx":""}"></div>
 ${err?`<div class="err" role="alert">${esc(err)}</div>`:""}
 ${files.map((f,i)=>`<div class="row"><span>${i+1}. ${esc(f.name)}</span><span>${fmt(f.size)} ${t.m&&files.length>1?`<button class="ib" data-up="${i}" aria-label="Move up">↑</button>`:""}<button class="ib" data-del="${i}" aria-label="Remove">×</button></span></div>`).join("")}
 <div class="f">${t.f.map(f=>`<label>${esc(f.l)}${f.t==="sel"?`<select data-k="${f.k}">${f.o.map(o=>`<option ${opts[f.k]===o?"selected":""}>${esc(o)}</option>`).join("")}</select>`:`<input data-k="${f.k}" inputmode="${f.t==="num"?"decimal":"text"}" value="${esc(opts[f.k]??"")}">`}</label>`).join("")}</div>
@@ -213,17 +214,17 @@ ${files.map((f,i)=>`<div class="row"><span>${i+1}. ${esc(f.name)}</span><span>${
 <div class="bar" ${busy?"":"hidden"}><i id="pg"></i></div>
 ${res?resView():""}`}
 function resView(){if(res.info)return`<h2 class="ok">Done</h2><div class="card">${res.info.map(r=>`<div class="row"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join("")}</div>`;
-return`<h2 class="ok">Done: ${res.out.length} file${res.out.length>1?"s":""}</h2>${res.note?`<p>${esc(res.note)}</p>`:""}${res.out.map((r,i)=>`<div class="row"><span>${esc(r.name)}<br><small style="color:var(--tx2)">${fmt(r.blob.size)}</small></span><button class="btn" data-dl="${i}">Download</button></div>`).join("")}${res.out.length>1?`<p><button class="btn g" id="za">Download all (ZIP)</button></p>`:""}`}
+return`<h2 class="ok">Done: ${res.out.length} file${res.out.length>1?"s":""}</h2>${res.note?`<p>${esc(res.note)}</p>`:""}${res.out.map((r,i)=>`<div class="row"><span>${esc(r.name)}<br><small style="color:var(--tx2)">${fmt(r.blob.size)}</small></span><button class="btn" data-dl="${i}">Download</button>${window.CANSHARE?`<button class="btn g" data-sh="${i}">Share</button>`:""}</div>`).join("")}${res.out.length>1?`<p><button class="btn g" id="za">Download all (ZIP)</button></p>`:""}`}
 let smart=[];
 const okFor=(t,f)=>!t.a||t.a.includes(f.type)||(t.a.includes("application/pdf")&&/\.pdf$/i.test(f.name)&&!f.type);
 function smartView(){const L=smart.length?TOOLS.filter(t=>t.run&&smart.every(f=>okFor(t,f))&&(t.m||smart.length===1)):[];
 return`<h1>Smart Open</h1><p class="sub">Pick your files. EDITH shows what you can do with them.</p><div class="drop" id="sz"><p style="font-size:38px;margin:0 0 6px">⚡</p><p>Drop files here or</p><button class="btn" id="sp">Choose files</button><input type="file" id="sf" multiple hidden></div>${smart.length?`<h2>${smart.length} file${smart.length>1?"s":""} ready</h2><p class="sub">${esc(smart.map(f=>f.name).join(", "))}</p>${L.length?`<div class="grid">${L.map(t=>card(t).replace('data-t=','data-sm=')).join("")}</div>`:`<div class="empty">No tool can handle this mix of files. Try one type at a time.</div>`}`:""}`}
-const chips=()=>`<div class="chips">${[["all","All"],["pdf","PDF"],["img","Image"]].map(c=>`<button class="chip ${view===c[0]?"on":""}" data-v="${c[0]}">${c[1]}</button>`).join("")}</div>`;
+const chips=()=>`<div class="chips">${[["all","All"],["pdf","PDF"],["img","Image"],["doc","Documents"],["util","Files"]].map(c=>`<button class="chip ${view===c[0]?"on":""}" data-v="${c[0]}">${c[1]}</button>`).join("")}</div>`;
 function body(){if(tool)return toolView();if(view==="smart")return smartView();
 if(view==="home"){const u=ls("usage",{}),fr=TOOLS.filter(t=>t.run).sort((a,b)=>(u[b.id]||0)-(u[a.id]||0)).slice(0,4);
 return`<div class="brand"><small>OBSYRA presents</small><div class="n">EDITH</div><em>Edit everything. Share nothing.</em></div><h1>Welcome</h1><p class="sub">Your private PDF and image toolkit. Files never leave your device.</p><button class="card tile" data-v="smart" style="width:100%;margin-bottom:12px;display:flex;gap:12px;align-items:center"><span class="ic" style="margin:0">⚡</span><span><h3 style="margin:0">Smart Open</h3><p>Pick a file and EDITH shows the right tools.</p></span></button>${sbox()}
 <div id="res">${q?`<h2>Results</h2>${grid(match())}`:`<h2>Frequently used</h2>${grid(fr)}<h2>PDF tools</h2>${grid(TOOLS.filter(t=>t.c==="pdf"&&t.run).slice(0,4))}<h2>Image tools</h2>${grid(TOOLS.filter(t=>t.c==="img"&&t.run).slice(0,4))}<h2>Recent files</h2>${histRows(ls("history",[]).slice(0,5))}`}</div>`}
-if(["all","pdf","img"].includes(view)){const l=match().filter(t=>view==="all"||t.c===view);return`<h1>${NAV.find(n=>n[0]===view)[1]}</h1><p class="sub">${l.filter(t=>t.run).length} ready · ${l.filter(t=>!t.run).length} coming soon</p>${chips()}${sbox()}<div id="res" style="margin-top:14px">${grid(l)}</div>`}
+if(["all","pdf","img","doc","util"].includes(view)){const l=match().filter(t=>view==="all"||t.c===view);return`<h1>${NAV.find(n=>n[0]===view)[1]}</h1><p class="sub">${l.filter(t=>t.run).length} ready · ${l.filter(t=>!t.run).length} coming soon</p>${chips()}${sbox()}<div id="res" style="margin-top:14px">${grid(l)}</div>`}
 if(view==="recent")return`<h1>Recent Files</h1><p class="sub">Names and sizes only, never contents.</p>${histRows(ls("history",[]).slice(0,15))}<p><button class="btn g" data-v="history">Full history</button></p>`;
 if(view==="history"){let h=ls("history",[]).filter(x=>x.name.toLowerCase().includes(hq.toLowerCase()));h.sort((a,b)=>hs==="name"?a.name.localeCompare(b.name):hs==="size"?b.size-a.size:b.t-a.t);
 return`<h1>File History</h1><div class="f"><input class="search" id="hq" type="search" placeholder="Search history" value="${esc(hq)}"><select id="hs"><option value="date" ${hs==="date"?"selected":""}>Newest first</option><option value="name" ${hs==="name"?"selected":""}>Name</option><option value="size" ${hs==="size"?"selected":""}>Size</option></select></div><div id="hl">${histRows(h)}</div>${h.length?`<p><button class="btn g" id="ch">Clear history</button></p>`:""}`}
@@ -235,7 +236,7 @@ function bindCards(){document.querySelectorAll("[data-t]").forEach(b=>b.onclick=
 async function runTool(){const t=TOOLS.find(x=>x.id===tool);busy=true;stop=false;err="";res=null;render();
 const x={stop:()=>stop,step:(i,n)=>{const e=$("#pg");if(e)e.style.width=Math.round(i/n*100)+"%"}};
 try{await new Promise(r=>setTimeout(r,30));const r=await t.run(files,opts,x);if(stop)err="Cancelled.";else if(r.info)res=r;else{res={out:r,note:r.note};const h=ls("history",[]);const now=Date.now();r.forEach((o,i)=>h.unshift({name:o.name,size:o.blob.size,fmt:o.blob.type||"file",t:now+i}));lset("history",h.slice(0,200));const u=ls("usage",{});u[t.id]=(u[t.id]||0)+1;lset("usage",u)}}
-catch(e){err=(e&&e.message)||"Something went wrong.";if(/memory|allocation/i.test(err))err="Not enough memory for this file. Try a smaller one."}
+catch(e){err=friendly(e);if(/memory|allocation/i.test(err))err="Not enough memory for this file. Try a smaller one."}
 busy=false;render()}
 function bind(){
 const sz=$("#sz");if(sz){const set=l=>{smart=[...l].filter(f=>f.size>0&&f.size<=MAXMB*1048576);render()};$("#sp").onclick=()=>$("#sf").click();$("#sf").onchange=e=>set(e.target.files);sz.ondragover=e=>e.preventDefault();sz.ondrop=e=>{e.preventDefault();set(e.dataTransfer.files)}}
@@ -246,7 +247,7 @@ if($("#bk"))$("#bk").onclick=()=>go(view);
 const hq_=$("#hq");if(hq_){hq_.oninput=e=>{hq=e.target.value;const p=e.target.selectionStart;render();const n=$("#hq");n.focus();n.setSelectionRange(p,p)};$("#hs").onchange=e=>{hs=e.target.value;render()};if($("#ch"))$("#ch").onclick=()=>{if(confirm("Clear all file history?")){lset("history",[]);render()}}}
 document.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{lset("history",ls("history",[]).filter(x=>String(x.t)!==b.dataset.rm));render()});
 const dz=$("#dz");if(dz){const t=TOOLS.find(x=>x.id===tool);
-const take=list=>{err="";res=null;const ok=[];for(const f of list){const pdf=t.c==="pdf",good=!t.a||t.a.includes(f.type)||(pdf&&/\.pdf$/i.test(f.name)&&!f.type);if(!good){err="“"+f.name+"” isn’t a supported "+(pdf?"PDF":"image")+" file.";continue}if(!f.size){err="“"+f.name+"” is empty.";continue}if(f.size>MAXMB*1048576){err="“"+f.name+"” is over "+MAXMB+" MB.";continue}ok.push(f)}files=t.m?files.concat(ok):ok.slice(0,1);render()};
+const take=list=>{err="";res=null;const ok=[];for(const f of list){const pdf=t.c==="pdf",good=!t.a||t.a.includes(f.type)||(pdf&&/\.pdf$/i.test(f.name)&&!f.type)||(t.id==="docx2pdf"&&/\.docx$/i.test(f.name));if(!good){err="“"+f.name+"” isn’t a supported "+(pdf?"PDF":"image")+" file.";continue}if(!f.size){err="“"+f.name+"” is empty.";continue}if(f.size>MAXMB*1048576){err="“"+f.name+"” is over "+MAXMB+" MB.";continue}ok.push(f)}files=t.m?files.concat(ok):ok.slice(0,1);render()};
 $("#pick").onclick=()=>$("#fi").click();$("#fi").onchange=e=>take([...e.target.files]);
 dz.ondragover=e=>{e.preventDefault();dz.classList.add("over")};dz.ondragleave=()=>dz.classList.remove("over");dz.ondrop=e=>{e.preventDefault();take([...e.dataTransfer.files])};
 document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{files.splice(+b.dataset.del,1);render()});
@@ -319,21 +320,71 @@ try{const m=await import("./lib/qpdf.js");f=typeof m.default==="function"?m.defa
 if(!f){try{const mod={exports:{}};f=new Function("module","exports",t+"\n;return typeof createModule!=='undefined'?createModule:null")(mod,mod.exports);if(typeof f!=="function")f=typeof mod.exports==="function"?mod.exports:Object.values(mod.exports).find(v=>typeof v==="function")}catch(e){info+="; script failed: "+e.message}}
 if(typeof f!=="function")throw new Error("The password engine could not start ("+info+"). File begins: "+t.slice(0,70).replace(/\s+/g," "));
 return QF=f}
-async function qrun(bytes,args,chk){const f=await qfactory();
+async function qrun(bytes,args,chk,kind){const f=await qfactory();
 const errs=[],q=await f({locateFile:p=>"lib/"+p.split("/").pop(),print:()=>{},printErr:m=>errs.push(m)});
 q.FS.writeFile("/i.pdf",bytes);try{q.callMain(args)}catch(e){}
 const t=errs.join(" ");
 if(chk){if(/invalid password|incorrect password/i.test(t))throw new Error("Verification failed: the protected file did not open with your password.");return true}
-try{return q.FS.readFile("/o.pdf")}catch(e){throw new Error(/password/i.test(t)?"Wrong password, or this PDF can’t be opened with it.":"The password engine could not process this file.")}}
+try{return q.FS.readFile("/o.pdf")}catch(e){const bad=!(bytes[0]===37&&bytes[1]===80&&bytes[2]===68&&bytes[3]===70);
+if(bad)throw new Error("This file doesn’t look like a valid PDF.");
+if(kind==="protect")throw new Error("Couldn’t protect this PDF. If it’s already password-protected, remove its password first.");
+if(kind==="unlock"||/password/i.test(t))throw new Error("The password didn’t match. Check it (passwords are case-sensitive) and try again.");
+throw new Error("The password engine could not process this file.")}}
 Object.assign(TOOLS.find(t=>t.id==="protect"),{d:"Add an opening password (AES-256). Keep it safe: it can’t be recovered.",f:[F("pw","Password","text",""),F("pw2","Confirm password","text","")],
 run:async(fs,o)=>{if(!o.pw)throw new Error("Enter a password.");if(o.pw!==o.pw2)throw new Error("The passwords don’t match.");
-const r=await qrun(new Uint8Array(await fs[0].arrayBuffer()),["--encrypt",o.pw,o.pw,"256","--","/i.pdf","/o.pdf"]);await qrun(r,["--password="+o.pw,"--check","/i.pdf"],true);
+const r=await qrun(new Uint8Array(await fs[0].arrayBuffer()),["--encrypt",o.pw,o.pw,"256","--","/i.pdf","/o.pdf"],0,"protect");await qrun(r,["--password="+o.pw,"--check","/i.pdf"],true);
 const res=[out(new Blob([r],{type:"application/pdf"}),base(fs[0].name)+"-protected.pdf")];res.note="Protected with AES-256 and checked: it opens with your password. Keep the password safe, it can’t be recovered.";return res}});
 const _i=TOOLS.findIndex(t=>t.id==="protect");
 TOOLS.splice(_i+1,0,{id:"unlock",n:"Remove PDF Password",c:"pdf",d:"Remove the password from a PDF. You must know the correct password; this never bypasses protection.",a:["application/pdf"],m:0,f:[F("pw","Current password","text","")],
-run:async(fs,o)=>{if(!o.pw)throw new Error("Enter the PDF’s current password.");const r=await qrun(new Uint8Array(await fs[0].arrayBuffer()),["--password="+o.pw,"--decrypt","/i.pdf","/o.pdf"]);
+run:async(fs,o)=>{if(!o.pw)throw new Error("Enter the PDF’s current password.");const r=await qrun(new Uint8Array(await fs[0].arrayBuffer()),["--password="+o.pw,"--decrypt","/i.pdf","/o.pdf"],0,"unlock");
 const res=[out(new Blob([r],{type:"application/pdf"}),base(fs[0].name)+"-unlocked.pdf")];res.note="Password removed. Only use this on files you own or may unlock.";return res}});
 const _b3=bind;bind=function(){_b3();document.querySelectorAll('[data-k="pw"],[data-k="pw2"]').forEach(e=>{e.type="password";e.autocomplete="off"})};
+render();
+</script>
+<script>
+window.CANSHARE=!!(navigator.canShare&&(()=>{try{return navigator.canShare({files:[new File(["x"],"a.pdf",{type:"application/pdf"})]})}catch(e){return false}})());
+function friendly(e){const m=(e&&e.message)||"";
+if(/No PDF header|Failed to parse PDF|Invalid PDF|InvalidPDF/i.test(m))return"This doesn’t look like a valid PDF. It may be damaged. Try Repair PDF.";
+if(/encrypted|password/i.test(m)&&!/didn’t match|Wrong/i.test(m)&&!/Enter|Current/i.test(m))return m.includes("protected")||m.includes("password")?m:"This PDF is password-protected. Use Remove PDF Password first.";
+if(/memory|allocation|array buffer/i.test(m))return"Not enough memory for this file. Try a smaller file or fewer files at once.";
+if(/Cancelled/i.test(m))return"Cancelled.";
+return m||"Something went wrong. Try again, or try a different file."}
+const DOCX="application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+TOOLS.push({id:"extimg",n:"Extract Images from PDF",c:"pdf",d:"Saves the pictures inside a PDF as PNG files. Masks and vector art aren’t included.",a:["application/pdf"],m:0,f:[],run:async(fs,o,x)=>{const j=await jsDoc(fs[0]),r=[],seen=new Set();let n=0;
+for(let i=1;i<=j.numPages;i++){if(x.stop())break;const pg=await j.getPage(i),ops=await pg.getOperatorList();
+for(let k=0;k<ops.fnArray.length;k++){if(ops.fnArray[k]!==pdfjsLib.OPS.paintImageXObject)continue;const id=ops.argsArray[k][0];if(seen.has(id))continue;seen.add(id);
+const im=await new Promise(res=>{try{(String(id).startsWith("g_")?pg.commonObjs:pg.objs).get(id,res)}catch(e){res(null)}});if(!im||!im.data||im.width<20||im.height<20)continue;
+const c=cv(im.width,im.height),g=c.getContext("2d"),d=g.createImageData(im.width,im.height),s=im.data,t=im.width*im.height;
+if(s.length===t*4)d.data.set(s);else if(s.length===t*3)for(let a=0,b=0;a<t;a++){d.data[b++]=s[a*3];d.data[b++]=s[a*3+1];d.data[b++]=s[a*3+2];d.data[b++]=255}else if(s.length===t)for(let a=0;a<t;a++){d.data[a*4]=d.data[a*4+1]=d.data[a*4+2]=s[a];d.data[a*4+3]=255}else continue;
+g.putImageData(d,0,0);n++;r.push(out(await blobOf(c,"image/png"),base(fs[0].name)+"-img"+n+".png"));c.width=0}x.step(i,j.numPages)}
+if(!r.length)throw new Error("No extractable images found in this PDF.");return r}});
+TOOLS.push({id:"docx2pdf",n:"Word to PDF (beta)",c:"doc",d:"Beta, simple documents only. Keeps text, headings, bold/italic, lists, tables and JPG/PNG pictures, but not exact fonts, colours or layout. Basic Latin characters.",a:[DOCX],m:0,f:[],run:async(fs,o,x)=>{
+need();if(!window.JSZip)throw new Error("ZIP engine failed to load.");let z;try{z=await JSZip.loadAsync(await fs[0].arrayBuffer())}catch(e){throw new Error("This doesn’t look like a valid .docx file.")}
+const dx=z.file("word/document.xml");if(!dx)throw new Error("This doesn’t look like a valid .docx file.");
+const PR=new DOMParser(),doc=PR.parseFromString(await dx.async("string"),"application/xml"),W="http://schemas.openxmlformats.org/wordprocessingml/2006/main",RN="http://schemas.openxmlformats.org/officeDocument/2006/relationships",AN="http://schemas.openxmlformats.org/drawingml/2006/main",rels={};
+const rf=z.file("word/_rels/document.xml.rels");if(rf)PR.parseFromString(await rf.async("string"),"application/xml").querySelectorAll("Relationship").forEach(r=>rels[r.getAttribute("Id")]=r.getAttribute("Target"));
+const d=await PDFLib.PDFDocument.create(),S=PDFLib.StandardFonts,F4={n:await d.embedFont(S.Helvetica),b:await d.embedFont(S.HelveticaBold),i:await d.embedFont(S.HelveticaOblique),bi:await d.embedFont(S.HelveticaBoldOblique)};
+const PW=595,PH=842,M=56,CW=PW-2*M,imgs={},kids=(e,n)=>[...e.children].filter(c=>c.localName===n),clean=t=>t.replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/[^\x20-\x7E\xA0-\xFF]/g,"?");
+let pg,y;const np=()=>{pg=d.addPage([PW,PH]);y=PH-M};np();
+const flag=(r,n)=>{const e=r.getElementsByTagNameNS(W,n)[0];return !!e&&!/^(0|false)$/.test(e.getAttributeNS(W,"val")||"")};
+async function img(id){if(id in imgs)return imgs[id];let r=null;const t=rels[id],f=t&&z.file("word/"+t.replace(/^\//,"").replace(/^word\//,""));if(f&&/\.(png|jpe?g)$/i.test(t)){try{const b=await f.async("uint8array");r=/\.png$/i.test(t)?await d.embedPng(b):await d.embedJpg(b)}catch(e){}}return imgs[id]=r}
+async function lay(p,w){const st=(p.getElementsByTagNameNS(W,"pStyle")[0]||{getAttributeNS:()=>""}).getAttributeNS(W,"val")||"",hd=/^(Heading|Title)/i.test(st),sz=/Title/i.test(st)?22:/Heading1/i.test(st)?18:/Heading2/i.test(st)?15:hd?13:11,jc=(p.getElementsByTagNameNS(W,"jc")[0]||{getAttributeNS:()=>""}).getAttributeNS(W,"val"),lines=[];
+let cur={it:[],w:0},sp=0;const fl=()=>{if(cur.it.length)lines.push({it:cur.it,w:cur.w,h:sz*1.35,jc});cur={it:[],w:0}};
+let words=[];if(p.getElementsByTagNameNS(W,"numPr").length)words.push({t:"• ",f:"n"});
+for(const r of p.getElementsByTagNameNS(W,"r")){const f=(hd||flag(r,"b")?"b":"")+(flag(r,"i")?"i":"")||"n";
+for(const c of r.children){if(c.localName==="t")c.textContent.split(/(\s+)/).forEach(t=>{if(t)words.push({t,f})});else if(c.localName==="tab")words.push({t:"    ",f});else if(c.localName==="br")words.push({br:c.getAttributeNS(W,"type")==="page"?2:1});else if(c.localName==="drawing"){const b=c.getElementsByTagNameNS(AN,"blip")[0];if(b)words.push({im:b.getAttributeNS(RN,"embed")})}}}
+for(const wd of words){if(wd.br){fl();lines.push({br:wd.br});continue}if(wd.im){fl();const im=await img(wd.im);if(im){const k=Math.min(1,w/im.width,500/im.height);lines.push({im,iw:im.width*k,h:im.height*k+4})}else lines.push({it:[{t:"[image not supported]",f:"i"}],w:90,h:sz*1.35});continue}
+const t=clean(wd.t),tw=F4[wd.f].widthOfTextAtSize(t,sz);if(cur.w+tw>w&&cur.it.length&&t.trim()){fl()}if(!cur.it.length&&!t.trim())continue;cur.it.push({t,f:wd.f,tw});cur.w+=tw}
+fl();lines.forEach(l=>l.sz=sz);return lines}
+function put(l,x,top,w){if(l.im){pg.drawImage(l.im,{x,y:top-l.h+4,width:l.iw,height:l.h-4});return}let cx=x+(l.jc==="center"?(w-l.w)/2:l.jc==="right"?w-l.w:0);for(const i of l.it){pg.drawText(i.t,{x:cx,y:top-l.sz,size:l.sz,font:F4[i.f]});cx+=i.tw}}
+const els=[...doc.getElementsByTagNameNS(W,"body")[0].children];let n=0;
+for(const el of els){if(x.stop())throw new Error("Cancelled.");
+if(el.localName==="p"){const ls=await lay(el,CW);if(!ls.length){y-=8}for(const l of ls){if(l.br===2){np();continue}if(l.br)continue;if(y-l.h<M)np();put(l,M,y,CW);y-=l.h}y-=5}
+else if(el.localName==="tbl"){for(const tr of kids(el,"tr")){const tcs=kids(tr,"tc"),cw=CW/Math.max(1,tcs.length),cells=[];let rh=14;for(const tc of tcs){let ls=[];for(const p of kids(tc,"p"))ls=ls.concat(await lay(p,cw-8));cells.push(ls);rh=Math.max(rh,ls.reduce((a,l)=>a+(l.h||0),0)+8)}
+if(y-rh<M)np();cells.forEach((ls,c)=>{pg.drawRectangle({x:M+c*cw,y:y-rh,width:cw,height:rh,borderColor:PDFLib.rgb(.5,.5,.5),borderWidth:.5});let cy=y-4;ls.forEach(l=>{if(!l.br){put(l,M+c*cw+4,cy,cw-8);cy-=l.h}})});y-=rh}y-=8}
+x.step(++n,els.length)}
+const r=[out(await pdfBlob(d),base(fs[0].name)+".pdf")];r.note="Beta conversion: text, headings, bold/italic, lists, tables and JPG/PNG pictures. Fonts, colours, headers, footers and exact layout are not preserved. Please check the result.";return r}});
+const _b4=bind;bind=function(){_b4();document.querySelectorAll("[data-sh]").forEach(b=>b.onclick=async()=>{const r=res.out[+b.dataset.sh];try{await navigator.share({files:[new File([r.blob],r.name,{type:r.blob.type||"application/octet-stream"})],title:r.name})}catch(e){if(e.name!=="AbortError")alert("Sharing isn’t available for this file on this device. Use Download instead.")}})};
 render();
 </script>
 </body></html>
