@@ -21,3 +21,9 @@ Please confirm these licences on each project's page before relying on them.
 | Lucide (icons) | ISC | https://github.com/lucide-icons/lucide |
 
 Licence texts are saved in `lib/licenses/` by the asset-fetch workflow.
+
+## Password engine
+
+| Library | Licence (to be confirmed by the author) | Source |
+|---|---|---|
+| qpdf, compiled to WebAssembly (@neslinesli93/qpdf-wasm) | Check the package and qpdf licence pages | https://github.com/qpdf/qpdf |

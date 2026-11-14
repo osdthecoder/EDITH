@@ -16,8 +16,9 @@ server by EDITH.
 **PDF:** merge, split, extract pages, delete pages, reorder or duplicate
 pages, rotate, add page numbers, add a watermark, add text, add an image or
 signature, highlight text, annotate, add headers and footers, compress,
-reduce size, optimise, view metadata, PDF to images, PDF to text, and
-text to PDF.
+reduce size, optimise, repair, compare, view metadata, PDF to images, PDF to
+text, text to PDF, zip files, protect a PDF with a password, and remove a
+password you already know.
 
 **Images:** images to PDF, compress, resize, crop, rotate, convert between
 JPG, PNG and WebP, and view image info.
@@ -27,7 +28,6 @@ sorting and clearing.
 
 ## What it cannot do (yet)
 
-- Password-protect a PDF.
 - Convert Word, Excel or PowerPoint files to PDF.
 - Draw a signature by hand (you can add a signature as an image).
 

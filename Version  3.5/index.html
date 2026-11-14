@@ -105,7 +105,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 <script src="lib/jszip.min.js"></script>
 <div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
 <script>
-const VERSION="0.6.0";const MAXMB=100;
+const VERSION="0.7.0";const MAXMB=100;
 const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
 const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
 const $=s=>document.querySelector(s);
@@ -309,6 +309,25 @@ const IMAP={merge:"merge",split:"split",extract:"file-output",delete:"trash-2",r
 const icon=(n,z)=>{const b=ICONS[n]||(n==="house"&&ICONS.home);return b?`<svg viewBox="0 0 24 24" width="${z}" height="${z}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b}</svg>`:null};
 function applyIcons(){document.querySelectorAll("[data-t] .ic").forEach(e=>{const s=icon(IMAP[e.closest("[data-t]").dataset.t],22);if(s)e.innerHTML=s});document.querySelectorAll(".dock button").forEach(b=>{const s=icon(IMAP[b.dataset.v],22),p=b.querySelector("span");if(s&&p)p.innerHTML=s})}
 fetch("lib/icons.json").then(r=>r.ok?r.json():{}).then(j=>{ICONS=j;applyIcons()}).catch(()=>{});
+render();
+</script>
+<script>
+async function qrun(bytes,args,chk){let f;try{f=(await import("./lib/qpdf.js")).default}catch(e){throw new Error("The password engine isn’t installed yet. Run the “Fetch password engine” workflow first.")}
+if(typeof f!=="function")f=window.createModule||window.Module;if(typeof f!=="function")throw new Error("The password engine could not start.");
+const errs=[],q=await f({locateFile:p=>"lib/"+p.split("/").pop(),print:()=>{},printErr:m=>errs.push(m)});
+q.FS.writeFile("/i.pdf",bytes);try{q.callMain(args)}catch(e){}
+const t=errs.join(" ");
+if(chk){if(/invalid password|incorrect password/i.test(t))throw new Error("Verification failed: the protected file did not open with your password.");return true}
+try{return q.FS.readFile("/o.pdf")}catch(e){throw new Error(/password/i.test(t)?"Wrong password, or this PDF can’t be opened with it.":"The password engine could not process this file.")}}
+Object.assign(TOOLS.find(t=>t.id==="protect"),{d:"Add an opening password (AES-256). Keep it safe: it can’t be recovered.",f:[F("pw","Password","text",""),F("pw2","Confirm password","text","")],
+run:async(fs,o)=>{if(!o.pw)throw new Error("Enter a password.");if(o.pw!==o.pw2)throw new Error("The passwords don’t match.");
+const r=await qrun(new Uint8Array(await fs[0].arrayBuffer()),["--encrypt",o.pw,o.pw,"256","--","/i.pdf","/o.pdf"]);await qrun(r,["--password="+o.pw,"--check","/i.pdf"],true);
+const res=[out(new Blob([r],{type:"application/pdf"}),base(fs[0].name)+"-protected.pdf")];res.note="Protected with AES-256 and checked: it opens with your password. Keep the password safe, it can’t be recovered.";return res}});
+const _i=TOOLS.findIndex(t=>t.id==="protect");
+TOOLS.splice(_i+1,0,{id:"unlock",n:"Remove PDF Password",c:"pdf",d:"Remove the password from a PDF. You must know the correct password; this never bypasses protection.",a:["application/pdf"],m:0,f:[F("pw","Current password","text","")],
+run:async(fs,o)=>{if(!o.pw)throw new Error("Enter the PDF’s current password.");const r=await qrun(new Uint8Array(await fs[0].arrayBuffer()),["--password="+o.pw,"--decrypt","/i.pdf","/o.pdf"]);
+const res=[out(new Blob([r],{type:"application/pdf"}),base(fs[0].name)+"-unlocked.pdf")];res.note="Password removed. Only use this on files you own or may unlock.";return res}});
+const _b3=bind;bind=function(){_b3();document.querySelectorAll('[data-k="pw"],[data-k="pw2"]').forEach(e=>{e.type="password";e.autocomplete="off"})};
 render();
 </script>
 </body></html>
