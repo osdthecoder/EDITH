@@ -1,0 +1,48 @@
+name: Fetch fonts and icons
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find app folder
+        run: |
+          M=$(find . -mindepth 2 -name manifest.json -not -path './.git/*' | head -1)
+          [ -n "$M" ] || { echo "No app folder found"; exit 1; }
+          echo "APP_DIR=$(dirname "$M")" >> "$GITHUB_ENV"
+          echo "Using: $(dirname "$M")"
+      - name: Download fonts
+        run: |
+          mkdir -p "$APP_DIR/lib/fonts" "$APP_DIR/lib/licenses"
+          F=https://cdn.jsdelivr.net/npm/@fontsource
+          curl -fsSL "$F/inter@5.0.8/files/inter-latin-400-normal.woff2" -o "$APP_DIR/lib/fonts/inter-400.woff2" || echo "WARN inter 400"
+          curl -fsSL "$F/inter@5.0.8/files/inter-latin-600-normal.woff2" -o "$APP_DIR/lib/fonts/inter-600.woff2" || echo "WARN inter 600"
+          curl -fsSL "$F/space-grotesk@5.0.8/files/space-grotesk-latin-600-normal.woff2" -o "$APP_DIR/lib/fonts/spacegrotesk-600.woff2" || echo "WARN sg 600"
+          curl -fsSL "$F/space-grotesk@5.0.8/files/space-grotesk-latin-700-normal.woff2" -o "$APP_DIR/lib/fonts/spacegrotesk-700.woff2" || echo "WARN sg 700"
+          curl -fsSL https://raw.githubusercontent.com/rsms/inter/master/LICENSE.txt -o "$APP_DIR/lib/licenses/inter-OFL.txt" || echo "WARN inter licence"
+          curl -fsSL https://raw.githubusercontent.com/floriankarsten/space-grotesk/master/OFL.txt -o "$APP_DIR/lib/licenses/spacegrotesk-OFL.txt" || echo "WARN sg licence"
+          curl -fsSL https://raw.githubusercontent.com/lucide-icons/lucide/main/LICENSE -o "$APP_DIR/lib/licenses/lucide-LICENSE" || echo "WARN lucide licence"
+      - name: Build icon file
+        run: |
+          python3 - <<'EOF'
+          import os, re, json, urllib.request
+          names = "merge split file-output trash-2 arrow-up-down rotate-cw hash stamp zap info file-image minimize-2 scaling crop repeat shrink type image highlighter message-square panel-top wrench git-compare archive images file-text file-input lock presentation layout-grid house home clock settings".split()
+          out = {}
+          for n in names:
+              try:
+                  t = urllib.request.urlopen("https://cdn.jsdelivr.net/npm/lucide-static@0.468.0/icons/%s.svg" % n, timeout=20).read().decode()
+                  out[n] = re.search(r"<svg[^>]*>(.*)</svg>", t, re.S).group(1).strip()
+              except Exception as e:
+                  print("WARN icon", n, e)
+          json.dump(out, open(os.environ["APP_DIR"] + "/lib/icons.json", "w"))
+          print(len(out), "icons")
+          EOF
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$APP_DIR/lib"
+          git commit -m "Add fonts and icons" || echo "Nothing to commit"
+          git push
