@@ -11,3 +11,13 @@ saved in `lib/licenses/` when the library-fetch workflow runs.
 | JSZip | 3.10.1 | MIT or GPL-3.0 (used under MIT) | https://github.com/Stuk/jszip |
 
 Please confirm these licences on each project's page before relying on them.
+
+## Fonts and icons
+
+| Asset | Licence (as understood by the author) | Source |
+|---|---|---|
+| Inter (font) | SIL Open Font License 1.1 | https://github.com/rsms/inter |
+| Space Grotesk (font) | SIL Open Font License 1.1 | https://github.com/floriankarsten/space-grotesk |
+| Lucide (icons) | ISC | https://github.com/lucide-icons/lucide |
+
+Licence texts are saved in `lib/licenses/` by the asset-fetch workflow.
