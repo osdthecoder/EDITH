@@ -115,7 +115,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 <script src="lib/jszip.min.js"></script>
 <div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
 <script>
-const VERSION="0.9.1";const MAXMB=100;
+const VERSION="0.9.2";const MAXMB=100;
 const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
 const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
 const $=s=>document.querySelector(s);
@@ -471,5 +471,11 @@ setTimeout(()=>{const f=!ls("visited",false);lset("visited",true);if(ls("running
 FN["gen.unsupOp"]="This isn’t supported yet.";FN["gen.dlStart"]="Download started.";
 window.DT={classify,okKey,msg,lineP,get,DLG,FN};
 render();
+</script>
+<script>
+addEventListener("load",async()=>{const L=[["PDFLib","lib/pdf-lib.min.js"],["pdfjsLib","lib/pdf.min.js"],["JSZip","lib/jszip.min.js"]],bad=L.filter(n=>!window[n[0]]);if(!bad.length)return;
+const rows=[];for(const b of bad){let st="could not be reached";try{const r=await fetch(b[1],{cache:"no-store"});st=r.ok?"found, but it could not run":"not found (error "+r.status+")"}catch(e){}rows.push(b[1]+": "+st)}
+const d=document.createElement("div");d.setAttribute("role","alert");d.style.cssText="position:fixed;left:10px;right:10px;top:10px;z-index:50;background:#2a1216;border:1px solid #FF5555;color:#fff;border-radius:12px;padding:12px 14px;font:13px/1.45 Inter,system-ui,sans-serif";
+d.innerHTML="<b>Some EDITH files didn’t load.</b><br>"+rows.map(esc).join("<br>")+"<br>The <b>lib</b> folder must sit in the same folder as this page’s index.html.<br>Page address: "+esc(location.href.split("#")[0])+' <button id="lbx" style="margin-left:8px;min-height:36px">Close</button>';document.body.appendChild(d);document.getElementById("lbx").onclick=()=>d.remove()});
 </script>
 </body></html>
