@@ -1,0 +1,87 @@
+name: Fetch all libraries
+on:
+  workflow_dispatch:
+    inputs:
+      folder:
+        description: "App folder name, exactly as in the repo (example: Version 3.5)"
+        required: true
+        default: "Version 3.5"
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    env:
+      APP_DIR: ${{ github.event.inputs.folder }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the folder
+        run: |
+          [ -f "$APP_DIR/index.html" ] || { echo "No index.html found in '$APP_DIR'. Check the folder name."; exit 1; }
+          echo "Using folder: $APP_DIR"
+      - name: Libraries
+        run: |
+          set -e
+          mkdir -p "$APP_DIR/lib/licenses"
+          B=https://cdnjs.cloudflare.com/ajax/libs
+          curl -fsSL "$B/pdf-lib/1.17.1/pdf-lib.min.js" -o "$APP_DIR/lib/pdf-lib.min.js"
+          curl -fsSL "$B/pdf.js/3.11.174/pdf.min.js" -o "$APP_DIR/lib/pdf.min.js"
+          curl -fsSL "$B/pdf.js/3.11.174/pdf.worker.min.js" -o "$APP_DIR/lib/pdf.worker.min.js"
+          curl -fsSL "$B/jszip/3.10.1/jszip.min.js" -o "$APP_DIR/lib/jszip.min.js"
+          for f in "$APP_DIR"/lib/*.js; do [ "$(wc -c < "$f")" -gt 10000 ] || { echo "$f too small"; exit 1; }; done
+          curl -fsSL https://raw.githubusercontent.com/Hopding/pdf-lib/master/LICENSE.md -o "$APP_DIR/lib/licenses/pdf-lib-LICENSE.md" || echo "pdf-lib licence not fetched"
+          curl -fsSL https://raw.githubusercontent.com/mozilla/pdf.js/master/LICENSE -o "$APP_DIR/lib/licenses/pdfjs-LICENSE" || echo "pdf.js licence not fetched"
+          curl -fsSL https://raw.githubusercontent.com/Stuk/jszip/main/LICENSE.markdown -o "$APP_DIR/lib/licenses/jszip-LICENSE.markdown" || echo "jszip licence not fetched"
+      - name: Fonts
+        continue-on-error: true
+        run: |
+          mkdir -p "$APP_DIR/lib/fonts" "$APP_DIR/lib/licenses"
+          F=https://cdn.jsdelivr.net/npm/@fontsource
+          curl -fsSL "$F/inter@5.0.8/files/inter-latin-400-normal.woff2" -o "$APP_DIR/lib/fonts/inter-400.woff2" || echo "WARN inter 400"
+          curl -fsSL "$F/inter@5.0.8/files/inter-latin-600-normal.woff2" -o "$APP_DIR/lib/fonts/inter-600.woff2" || echo "WARN inter 600"
+          curl -fsSL "$F/space-grotesk@5.0.8/files/space-grotesk-latin-600-normal.woff2" -o "$APP_DIR/lib/fonts/spacegrotesk-600.woff2" || echo "WARN sg 600"
+          curl -fsSL "$F/space-grotesk@5.0.8/files/space-grotesk-latin-700-normal.woff2" -o "$APP_DIR/lib/fonts/spacegrotesk-700.woff2" || echo "WARN sg 700"
+          curl -fsSL https://raw.githubusercontent.com/rsms/inter/master/LICENSE.txt -o "$APP_DIR/lib/licenses/inter-OFL.txt" || echo "WARN inter licence"
+          curl -fsSL https://raw.githubusercontent.com/floriankarsten/space-grotesk/master/OFL.txt -o "$APP_DIR/lib/licenses/spacegrotesk-OFL.txt" || echo "WARN sg licence"
+          curl -fsSL https://raw.githubusercontent.com/lucide-icons/lucide/main/LICENSE -o "$APP_DIR/lib/licenses/lucide-LICENSE" || echo "WARN lucide licence"
+      - name: Icons
+        continue-on-error: true
+        run: |
+          python3 - <<'PY'
+          import os, re, json, urllib.request
+          names = "merge split file-output trash-2 arrow-up-down rotate-cw hash stamp zap info file-image minimize-2 scaling crop repeat shrink type image highlighter message-square panel-top wrench git-compare archive images file-text file-input lock presentation layout-grid house home clock settings".split()
+          out = {}
+          for n in names:
+              try:
+                  t = urllib.request.urlopen("https://cdn.jsdelivr.net/npm/lucide-static@0.468.0/icons/%s.svg" % n, timeout=20).read().decode()
+                  out[n] = re.search(r"<svg[^>]*>(.*)</svg>", t, re.S).group(1).strip()
+              except Exception as e:
+                  print("WARN icon", n, e)
+          json.dump(out, open(os.environ["APP_DIR"] + "/lib/icons.json", "w"))
+          print(len(out), "icons")
+          PY
+      - name: Password engine
+        continue-on-error: true
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request as u
+          P = "@neslinesli93/qpdf-wasm"
+          v = json.load(u.urlopen("https://data.jsdelivr.com/v1/package/resolve/npm/%s@latest" % P))["version"]
+          files = [f["name"] for f in json.load(u.urlopen("https://data.jsdelivr.com/v1/package/npm/%s@%s/flat" % (P, v)))["files"]]
+          def pick(ext):
+              c = [f for f in files if f.endswith(ext) and "qpdf" in f.split("/")[-1]]
+              return sorted(c, key=lambda f: (0 if "/dist/" in f else 1, len(f)))[0]
+          d = os.environ["APP_DIR"] + "/lib"
+          for ext, name in ((".js", "qpdf.js"), (".wasm", "qpdf.wasm")):
+              f = pick(ext)
+              open(d + "/" + name, "wb").write(u.urlopen("https://cdn.jsdelivr.net/npm/%s@%s%s" % (P, v, f)).read())
+              print("saved", f)
+          open(d + "/qpdf-version.txt", "w").write(v)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$APP_DIR/lib"
+          git commit -m "Add libraries, fonts, icons and password engine" || echo "Nothing to commit"
+          git push
