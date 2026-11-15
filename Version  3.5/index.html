@@ -99,6 +99,15 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 .grip{position:absolute;right:4px;bottom:4px;width:36px;height:36px;display:grid;place-items:center;background:rgba(0,0,0,.7);border-radius:10px;touch-action:none;cursor:grab}
 .pmt.ov{outline:2px dashed var(--ac)}.pmbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;position:sticky;top:0;z-index:3;background:var(--bg);padding:8px 0}
 @media(max-width:760px){nav [data-v="doc"],nav [data-v="util"]{display:none}}
+
+.dlg-toast{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:min(92vw,420px);background:var(--card);border:1px solid var(--ac);border-radius:14px;padding:10px 14px;z-index:30;pointer-events:none;animation:rise .25s both;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.dlg-toast b,.dh{display:block;font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif;font-weight:600;font-size:15px;color:var(--tx)}
+.dlg-toast small{display:block;margin-top:2px;font-size:12px;color:var(--tx2)}
+.dlg-hint{margin:8px 2px 0;font-size:13px;color:var(--tx2)}
+.dlg-un{margin-top:12px;padding:16px;border:1px solid var(--ac);border-radius:16px;background:rgba(155,92,255,.08);text-align:center}
+.dlg-un b{font-size:20px;line-height:1.2}.dlg-un span{display:block;margin-top:6px;color:var(--tx2)}
+.dlg-un em{display:inline-block;margin-top:10px;padding:3px 12px;border-radius:99px;border:1px solid var(--ac);color:var(--ac);font-style:normal;font-size:12px;letter-spacing:.14em}
+.dlg-un p{margin:10px 0 0;font-size:13px;color:var(--tx2)}
 </style></head><body>
 <script src="lib/pdf-lib.min.js"></script>
 <script src="lib/pdf.min.js"></script>
@@ -106,7 +115,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 <script src="lib/jszip.min.js"></script>
 <div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
 <script>
-const VERSION="0.8.0";const MAXMB=100;
+const VERSION="0.9.1";const MAXMB=100;
 const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
 const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
 const $=s=>document.querySelector(s);
@@ -327,6 +336,7 @@ const t=errs.join(" ");
 if(chk){if(/invalid password|incorrect password/i.test(t))throw new Error("Verification failed: the protected file did not open with your password.");return true}
 try{return q.FS.readFile("/o.pdf")}catch(e){const bad=!(bytes[0]===37&&bytes[1]===80&&bytes[2]===68&&bytes[3]===70);
 if(bad)throw new Error("This file doesn’t look like a valid PDF.");
+if(/unsupported|unknown (encryption|security)|crypt filter|security handler/i.test(t))throw new Error("This PDF uses an unsupported encryption type.");
 if(kind==="protect")throw new Error("Couldn’t protect this PDF. If it’s already password-protected, remove its password first.");
 if(kind==="unlock"||/password/i.test(t))throw new Error("The password didn’t match. Check it (passwords are case-sensitive) and try again.");
 throw new Error("The password engine could not process this file.")}}
@@ -385,6 +395,81 @@ if(y-rh<M)np();cells.forEach((ls,c)=>{pg.drawRectangle({x:M+c*cw,y:y-rh,width:cw
 x.step(++n,els.length)}
 const r=[out(await pdfBlob(d),base(fs[0].name)+".pdf")];r.note="Beta conversion: text, headings, bold/italic, lists, tables and JPG/PNG pictures. Fonts, colours, headers, footers and exact layout are not preserved. Please check the result.";return r}});
 const _b4=bind;bind=function(){_b4();document.querySelectorAll("[data-sh]").forEach(b=>b.onclick=async()=>{const r=res.out[+b.dataset.sh];try{await navigator.share({files:[new File([r.blob],r.name,{type:r.blob.type||"application/octet-stream"})],title:r.name})}catch(e){if(e.name!=="AbortError")alert("Sharing isn’t available for this file on this device. Use Download instead.")}})};
+render();
+</script>
+<script>
+/* EDITH dialogue system: library, selection, display */
+const DLG={
+nav:{open:"Systems online. What are we working on?",back:"Back again? Let’s get something done.",smart:"Let’s see what you’ve brought me.",settings:"Adjusting my environment.",tools:"All tools accounted for. Choose your weapon.",files:"Your files. Your business.",emptyRecent:"Nothing here. A clean slate.",emptyHistory:"No files processed yet. We all start somewhere."},
+file:{none:"I’m powerful, not psychic. Select a file.",unsupported:"Interesting choice. Unfortunately, I don’t speak this format.",wrong:"That’s not the file we’re looking for.",empty:"There’s literally nothing in here. What am I processing?",corrupt:"This file needs medical attention.",dupe:"Déjà vu. I’ve seen this one already.",large:"That’s a lot of data. Give me a second.",ok:"File acquired. Let’s get to work.",multi:"Multiple targets acquired."},
+tool:{compress:{start:"Your PDF needs to lose some baggage.",ok:"Lighter, cleaner, done."},merge:{start:"Let’s bring these together.",ok:"United. As they should be."},split:{start:"Time for some separation.",ok:"Separation complete."},rotate:{start:"Your document was looking in the wrong direction.",ok:"Orientation corrected."},reorder:{ok:"A little organization goes a long way."},delete:{ok:"Unwanted pages eliminated."},pdf2img:{ok:"Your pages are now pictures."},pdf2txt:{ok:"Text extracted. No typing required."},repair:{start:"Well, this document has seen better days.",ok:"Not bad. It’s back in working order.",fail:"I tried. This document isn’t cooperating."},compare:{start:"Let’s see what’s changed.",ok:"Comparison complete. Differences identified."},protect:{ok:"Document secured. Trust issues resolved."},unlock:{ok:"Security disabled. You’re officially back in."}},
+pw:{unprot:"BRO... THERE’S NO PASSWORD. 💀",unprotSub:"Who exactly are we hacking here?",unprotStatus:"ALREADY UNPROTECTED",wrong:"Nice try. That password isn’t getting past me.",unsupEnc:"Interesting encryption. Not something I support yet.",protFail:"Security wasn’t applied. Your document is unchanged.",remFail:"Access wasn’t restored. Check the password and try again."},
+gen:{start:"On it.",busy:"Working. Give me a moment.",ok:"Done. Clean work.",fail:"Well, that didn’t go according to plan.",cancel:"Mission aborted. As requested.",unsupOp:"Not in my skill set. Yet.",perm:"I need permission to access that file.",storage:"I can’t access the destination storage.",exportOk:"Your file is ready.",exportFail:"Nothing was exported. Let’s try again."},
+smart:{recog:"Identified. Opening the appropriate workspace.",unsup:"I can identify it, but I can’t process it yet.",none:"Give me something to work with.",fail:"Couldn’t open that file. Check its format and integrity."},
+net:{offline:"Offline mode. Nothing unusual.",nonet:"No internet? Not a problem.",needs:"This operation requires an internet connection.",local:"Processing locally. Your files stay on your device."}};
+/* Functional wording for REDUCED/OFF and for situations the specification does not cover (proposed, awaiting approval) */
+const FN={"gen.start":"Starting.","gen.busy":"Working…","gen.ok":"Done.","gen.fail":"The operation failed.","gen.cancel":"Cancelled.","gen.perm":"Permission is needed to access that file.","gen.storage":"The destination storage isn’t available.","gen.exportOk":"File ready.","gen.exportFail":"Nothing was exported.","file.ok":"File added.","file.multi":"Files added.","file.dupe":"This file is already in the list.","file.large":"Large file. This may take a moment.","file.none":"Select a file.","file.notfound":"That file couldn’t be found. It may have been moved or deleted.","pw.wrong":"Incorrect password.","pw.unsupEnc":"This encryption isn’t supported yet.","pw.protFail":"Password protection wasn’t applied. The original file is unchanged.","pw.remFail":"The password wasn’t removed.","net.local":"Processing locally. Files stay on your device.","net.offline":"Offline.","net.nonet":"Offline. Everything here works without internet.","smart.recog":"File recognised.","smart.unsup":"This file type can’t be processed yet.","smart.fail":"Couldn’t open that file."};
+const LIGHT=new Set(["gen.start","gen.ok","gen.busy","file.ok","file.multi","net.local","net.offline","net.nonet","tool.compress.ok","tool.merge.ok","tool.rotate.ok","tool.reorder.ok","tool.pdf2txt.ok"]);
+const AL={reduce:"compress"},DS={seen:{},sk:"",fk:"",local:0};
+const MODE=()=>ls("persona","standard"),get=k=>k.split(".").reduce((o,x)=>o&&o[x],DLG);
+const lineP=k=>{const m=MODE();if(m==="off"||(m==="reduced"&&!LIGHT.has(k)))return null;const v=get(k);return typeof v==="string"?v:null};
+const tn=id=>(TOOLS.find(t=>t.id===id)||{}).n||"Operation";
+const lineF=(k,c)=>FN[k]||(/^tool\..*\.ok$/.test(k)?tn(c&&c.id)+" complete.":/\.start$/.test(k)?"Starting.":null);
+const msg=(k,c)=>k.startsWith("nav.")?lineP(k):(lineP(k)||lineF(k,c));
+function toast(k,c,detail){const t=msg(k,c);if(!t)return;const n=Date.now();if(DS.seen[k]&&n-DS.seen[k]<8000)return;DS.seen[k]=n;
+document.querySelectorAll(".dlg-toast").forEach(e=>e.remove());const e=document.createElement("div");e.className="dlg-toast";e.setAttribute("role","status");e.innerHTML="<b>"+esc(t)+"</b>"+(detail?"<small>"+esc(detail)+"</small>":"");document.body.appendChild(e);setTimeout(()=>e.remove(),4200)}
+function classify(m,tid){m=m||"";
+if(/isn’t password-protected/.test(m))return"unprot";
+if(/didn’t match|Wrong password/i.test(m))return"pw.wrong";
+if(/Couldn’t protect/.test(m))return"pw.protFail";
+if(/unsupported encryption|encryption.*(not|isn’t) supported/i.test(m))return"pw.unsupEnc";
+if(tid==="unlock"&&/could not process|could not be verified|damaged/i.test(m))return"pw.remFail";
+if(/^Cancelled/i.test(m))return"gen.cancel";
+if(/isn’t a supported/.test(m))return"file.wrong";
+if(/ is empty/.test(m))return"file.empty";
+if(/memory|installed yet/i.test(m))return null;
+if(/permission|NotAllowed/i.test(m))return"gen.perm";
+if(/quota|storage/i.test(m))return"gen.storage";
+if(/not found|NotFound/i.test(m))return"file.notfound";
+if(tid==="repair"&&/repair/i.test(m))return"tool.repair.fail";
+if(/valid PDF|damaged|Try Repair|couldn’t be repaired/i.test(m))return"file.corrupt";
+if(/could not|couldn’t|failed|went wrong/i.test(m))return"gen.fail";return null}
+function okKey(t,r){const id=AL[t]||t;let k="tool."+id+".ok";
+if(t==="compress"||t==="reduce"){if(!(files[0]&&r.out&&r.out[0].blob.size<files[0].size))k="gen.ok"}
+else if(t==="compare"&&/Pages with differences: none/.test(r.note||""))k="gen.ok";
+return get(k)||FN[k]?k:"gen.ok"}
+function dlgPaint(){const m=document.querySelector("#main");if(!m)return;
+if(tool){const T0=TOOLS.find(x=>x.id===tool);if(T0&&!T0.run){const c0=document.querySelector("#main .card");if(c0&&!document.querySelector(".dlg-hint")){const p0=msg("gen.unsupOp");if(p0)c0.insertAdjacentHTML("afterend",'<p class="dlg-hint">'+esc(p0)+"</p>")}}
+const o=document.querySelector("h2.ok");
+if(o&&res&&!err||(o&&tool==="pages"&&PM.res)){const k=tool==="pages"?"gen.ok":okKey(tool,res);o.textContent=(msg(k,{id:tool})||o.textContent)+(res&&res.out&&res.out.length>1&&tool!=="pages"?" · "+res.out.length+" files":"")}
+const e=document.querySelector(".err");
+if(e){const txt=e.textContent,k=classify(txt,tool);
+if(k==="unprot"){const st=MODE()==="standard";e.className="dlg-un";e.innerHTML=(st?'<b class="dh">'+esc(DLG.pw.unprot)+"</b><span>"+esc(DLG.pw.unprotSub)+"</span>":'<b class="dh">This PDF isn’t password-protected.</b>')+"<em>"+(st||MODE()!=="off"?DLG.pw.unprotStatus:DLG.pw.unprotStatus)+"</em><p>"+esc(txt)+"</p>"}
+else if(k){const p=msg(k,{id:tool});if(p&&MODE()!=="off"&&lineP(k))e.insertAdjacentHTML("afterbegin",'<b class="dh">'+esc(p)+"</b>")}}
+const dz=document.querySelector(".drop");if(dz&&tool!=="pages"&&!files.length&&!err)dz.insertAdjacentHTML("afterend",'<p class="dlg-hint">'+esc(msg("file.none"))+"</p>");
+const b=document.querySelector(".bar");if(b&&busy)b.insertAdjacentHTML("afterend",'<p class="dlg-hint">'+esc(msg("gen.busy"))+"</p>");
+const fk=files.map(f=>f.name+f.size).join("|");if(fk!==DS.fk){DS.fk=fk;if(files.length&&!err){const d=new Set(files.map(f=>f.name+f.size)).size<files.length;toast(d?"file.dupe":files.length>1?"file.multi":"file.ok")}}}
+else{DS.fk="";
+if((view==="recent"||view==="history")&&!ls("history",[]).length){const e=document.querySelector(".empty"),p=lineP(view==="recent"?"nav.emptyRecent":"nav.emptyHistory");if(e&&p)e.innerHTML='<b class="dh">'+esc(p)+"</b>"}
+if(view==="smart"&&!smart.length){const d1=document.querySelector("#main .drop");if(d1&&!document.querySelector(".dlg-hint")){const p1=msg("smart.none");if(p1)d1.insertAdjacentHTML("afterend",'<p class="dlg-hint">'+esc(p1)+"</p>")}}
+if(view==="smart"){const k=smart.map(f=>f.name+f.size).join("|");if(k!==DS.sk){DS.sk=k;if(smart.length){const n=TOOLS.filter(t=>t.run&&smart.every(f=>okFor(t,f))&&(t.m||smart.length===1)).length;toast(n?"smart.recog":"smart.unsup")}}}else DS.sk="";
+if(view==="settings"){const c=document.querySelector("#main .card"),M=MODE();if(c)c.insertAdjacentHTML("beforebegin",'<div class="card" id="persona"><h3>EDITH personality</h3><p>Errors, warnings, progress and confirmations always appear, whatever you choose.</p><div class="chips">'+[["standard","Standard"],["reduced","Reduced"],["off","Off"]].map(x=>'<button class="chip '+(M===x[0]?"on":"")+'" data-p="'+x[0]+'">'+x[1]+"</button>").join("")+"</div></div>");
+document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{lset("persona",b.dataset.p);render()})}}}
+const _r5=render;render=function(){_r5();dlgPaint()};
+const _g5=go;go=function(v,t){const pv=view;_g5(v,t);if(!t&&v!==pv)toast({all:"nav.tools",pdf:"nav.tools",img:"nav.tools",doc:"nav.tools",util:"nav.tools",settings:"nav.settings",recent:"nav.files",history:"nav.files",smart:"nav.smart"}[v]||"nav.x")};
+const _rt5=runTool;runTool=async function(){const t=TOOLS.find(x=>x.id===tool),big=files.reduce((a,f)=>a+f.size,0)>30*1048576,k="tool."+(AL[t.id]||t.id)+".start";
+lset("running",1);toast(big?"file.large":get(k)?k:"gen.start",{id:t.id},DS.local?"":msg("net.local"));DS.local=1;try{await _rt5()}finally{lset("running",0)}};
+const UL=TOOLS.find(t=>t.id==="unlock"),_ul=UL.run;
+UL.run=async(fs,o,x)=>{need();let enc=false;try{await PDFLib.PDFDocument.load(new Uint8Array(await fs[0].arrayBuffer()))}catch(e){if(/encrypted/i.test(e.message||""))enc=true;else throw new Error("This file doesn’t look like a valid PDF, or it is damaged.")}
+if(!enc)throw new Error("This PDF isn’t password-protected, so there is nothing to remove. No file was created.");
+const r=await _ul(fs,o,x);try{await PDFLib.PDFDocument.load(new Uint8Array(await r[0].blob.arrayBuffer()))}catch(e){throw new Error("Password removal could not be verified: the output is still encrypted. No file was created.")}return r};
+save=async function(n,b){let dl=null;try{dl=window.claude&&await claude.use("downloads")}catch(e){}
+if(dl){try{await dl.save({filename:n,data:b});toast("gen.exportOk")}catch(e){if(e.code!=="declined")toast("gen.exportFail",{},e.message||e.code)}return}
+const u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast("gen.dlStart")};
+addEventListener("offline",()=>toast("net.offline"));
+setTimeout(()=>{const f=!ls("visited",false);lset("visited",true);if(ls("running",0)){lset("running",0);toast("gen.fail",{},"The last operation was interrupted before it finished. Nothing was saved. Select the file again to retry.")}else toast(navigator.onLine?(f?"nav.open":"nav.back"):"net.nonet")},500);
+FN["gen.unsupOp"]="This isn’t supported yet.";FN["gen.dlStart"]="Download started.";
+window.DT={classify,okKey,msg,lineP,get,DLG,FN};
 render();
 </script>
 </body></html>
