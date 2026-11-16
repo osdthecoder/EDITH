@@ -115,7 +115,7 @@ h1,h2,.card h3,.brand .n,.logo b{font-family:var(--hf)}
 <script src="lib/jszip.min.js"></script>
 <div class="app"><nav id="nav" aria-label="Main"></nav><main id="main" tabindex="-1"></main></div>
 <script>
-const VERSION="0.9.3";const MAXMB=100;
+const VERSION="0.9.4";const MAXMB=100;
 const SVG='<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1C1C25" stroke="#30303B"/><path d="M10 8h5v18h-5z M10 8h15v4.500H10z M10 21.500h15V26H10z" fill="#9B5CFF"/><path d="M15 15.250h10v4.500H15z" fill="#7040CC"/></svg>';
 const PA=["application/pdf"],IA=["image/jpeg","image/png","image/webp","image/bmp","image/gif"];
 const $=s=>document.querySelector(s);
@@ -484,5 +484,10 @@ d.innerHTML="<b>Some EDITH files didn’t load.</b><br>"+rows.map(esc).join("<br
 const _go2=go;go=function(v,t){if(["reorder","delete","rotate","extract"].includes(t)){PM.mode=t;t="pages"}else if(t==="pages")PM.mode="pages";_go2(v,t)};
 [["reorder","See page thumbnails, then drag pages into a new order."],["delete","See page thumbnails and tap the pages to delete."],["rotate","See page thumbnails and rotate the pages you select."],["extract","See page thumbnails and keep only the pages you select."]].forEach(([id,d])=>{const t=TOOLS.find(x=>x.id===id);if(t)t.d=d});
 render();
+</script>
+<script>
+if(window.AndroidBridge){save=async function(name,blob){const B=AndroidBridge;try{const id=B.begin(name,blob.type||"application/octet-stream");if(id<0)throw 0;const u=new Uint8Array(await blob.arrayBuffer());
+for(let i=0;i<u.length;i+=393216){const c=u.subarray(i,i+393216);let s="";for(let k=0;k<c.length;k+=8192)s+=String.fromCharCode.apply(null,c.subarray(k,k+8192));if(!B.chunk(id,btoa(s))){B.abort(id);throw 0}}
+if(!B.finish(id))throw 0;if(window.toast)toast("gen.exportOk")}catch(e){if(window.toast)toast("gen.exportFail");else alert("Couldn’t save the file to Downloads. Check your storage space and try again.")}}}
 </script>
 </body></html>
